@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        .header button {
+            padding: 8px 15px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .header button:hover {
+            background-color: #45a049;
+        }
+
+        /* ... responsive styling ... */
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    <div>
+        <h1>Welcome to the dashboard!</h1>
+        <!-- Dashboard content goes here -->
+    </div>
+    {% endblock %}
+</body>
+</html>
