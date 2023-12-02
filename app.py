@@ -2,8 +2,10 @@ from flask import Flask, render_template, redirect, url_for, flash, session, req
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
+from werkzeug.utils import secure_filename
 from fire_base_config import *
-
+from aws_config import *
+import uuid
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a secret key
@@ -34,6 +36,10 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # If user is already logged in, redirect to dashboard
+    if session.get('user_email', None):
+        return redirect(url_for('dashboard'))
+
     # Initialize the login form
     class LoginForm(FlaskForm):
         username = StringField('Username', validators=[DataRequired()])
@@ -50,8 +56,9 @@ def login():
         try:
             user = auth.sign_in_with_email_and_password(username, password)
             session['user_email'] = username  # Store user email in session
-            flash('You have been logged in.', 'success')
-            return redirect(url_for('dashboard'))
+            if user.get('user_email', None):
+                flash('You have been logged in.', 'success')
+                return redirect(url_for('dashboard'))
         except:
             flash('Invalid username or password.', 'danger')
             return redirect(url_for('login'))
@@ -61,6 +68,9 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # If user is not logged in, redirect to login
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     return render_template('dashboard.html')
 
 @app.route('/logout')
@@ -70,21 +80,30 @@ def logout():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    # check if user is logged in
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     if request.method == "GET":
         return render_template('home.html')
     else:
         search_term = request.form.get('search_term')
-        all_products = products_ref.get()
+        all_products_response = products_ref.get()
+
+        # Convert PyreResponse to a dictionary
+        all_products = all_products_response.val() if all_products_response.val() else {}
+
         # Filter products based on the search term
-        print(all_products)
-        print(all_products.val())
-        filtered_products = {}
-        if all_products.val():
-            filtered_products = {key: val for key, val in all_products.items() if search_term.lower() in val.get('name', '').lower()}
+        filtered_products = [
+            {'name': val.get('name', ''), 'description': val.get('description', ''), 'image_link': val.get('image_link', ''), 'price': val.get('price', '')}
+            for key, val in all_products.items() if search_term.lower() in val.get('name', '').lower()
+        ]
+
         return render_template('home.html', products=filtered_products)
 
 @app.route('/profile')
 def profile():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     user_email = session.get('user_email', None)
     if user_email:
         # If there's a user email in the session, pass it to the template
@@ -102,15 +121,54 @@ def get_user(user_id):
         return jsonify(message="User found", data=user)
     else:
         return jsonify(message="User not found", data={}), 404
+    
+# @app.route('/post_product', methods=['POST'])
+def process_and_post_product(request):
+    try:
+        product_data = {
+            "name": request.form['product_name'],
+            "description": request.form['product_description'],
+            "price": request.form['product_price'],
+            "images": []
+        }
 
-@app.route('/product/post', methods=['POST'])
+        images = request.files.getlist('product_images')
+        for image in images:
+            if image:
+                filename = secure_filename(image.filename)
+                unique_filename = f"{uuid.uuid4()}_{filename}"
+                s3.upload_fileobj(image, s3_bucket_name, unique_filename)
+                image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
+                product_data["images"].append(image_url)
+
+        # Save product data to Firestore
+        products_ref.push(product_data)
+
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+@app.route('/product/post', methods=['POST', 'GET'])
 def post_product():
-    data = request.json
-    result = products_ref.push(data)
-    return jsonify(message="Product posted successfully", data=result)
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+    if request.method == "GET":
+        # create a form to post a product
+        return render_template('post_product.html')
+    elif request.method == "POST":
+        if process_and_post_product(request):
+            flash('Product posted successfully', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Error posting product', 'danger')
+            return redirect(url_for('/product/post'))
+
 
 @app.route('/product/<product_id>', methods=['GET'])
 def get_product(product_id):
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     product = products_ref.child(product_id).get()
     if product:
         return jsonify(message="Product found", data=product)
@@ -119,11 +177,15 @@ def get_product(product_id):
     
 @app.route('/product/delete/<product_id>', methods=['DELETE'])
 def delete_product(product_id):
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     products_ref.child(product_id).remove()
     return jsonify(message="Product deleted successfully", data={})
 
 @app.route('/products', methods=['GET'])
 def list_products():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
     products = products_ref.get()
     return jsonify(message="Products retrieved successfully", data=products)
 
