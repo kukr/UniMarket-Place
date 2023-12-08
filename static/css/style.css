@@ -69,3 +69,18 @@ input[type="submit"]:hover {
         border-radius: 0;
     }
 }
+
+input[type="button"] {
+    width: 100%;
+    background-color: #1A73E8; /* A different color for differentiation */
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="button"]:hover {
+    background-color: #1570B3;
+}

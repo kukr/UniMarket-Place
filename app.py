@@ -41,6 +41,8 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # If user is already logged in, redirect to dashboard
+
+    
     if session.get('user_email', None):
         return redirect(url_for('dashboard'))
 
@@ -52,23 +54,24 @@ def login():
 
     # Get the form data
     form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
+    if request.method == "GET":
+        return render_template('login.html', form=form)
+    username = form.username.data
+    password = form.password.data
 
-        # Authenticate the user
-        try:
-            user = auth.sign_in_with_email_and_password(username, password)
-            session['user_email'] = username  # Store user email in session
-            if user.get('user_email', None):
-                flash('You have been logged in.', 'success')
-                return redirect(url_for('dashboard'))
-        except:
-            flash('Invalid username or password.', 'danger')
-            return redirect(url_for('login'))
-
+    # Authenticate the user
+    try:
+        user = auth.sign_in_with_email_and_password(username, password)
+        session['user_email'] = username  # Store user email in session
+        # if user.get('user_email', None):
+        #     flash('You have been logged in.', 'success')
+        #     
+        return redirect(url_for('dashboard'))
+    except:
+        flash('Invalid username or password.', 'danger')
+        return redirect(url_for('login'))
     # Render the login page
-    return render_template('login.html', form=form)
+    # return render_template('login.html', form=form)
 
 @app.route('/dashboard')
 def dashboard():
