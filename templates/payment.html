@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<body>
+  <div class="container mx-auto p-4">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6 border-b">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Payment</h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6 flex justify-center">
+        <a
+          href="www.qr-code-generator.com/solutions/app-qr-code/"
+          border="0"
+          style="cursor: default"
+          rel="nofollow"
+          ><img
+            src="https://chart.googleapis.com/chart?cht=qr&chl=Scan%20this%20code&chs=180x180&choe=UTF-8&chld=L|2"
+        /></a>
+      </div>
+      <p class="text-center">
+        Scan the QR code to proceed with the payment for offer #{{
+        payment_details.offer_id }}
+      </p>
+    </div>
+  </div>
+</body>
+{% endblock %}

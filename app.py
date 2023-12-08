@@ -189,6 +189,43 @@ def list_products():
     products = products_ref.get()
     return jsonify(message="Products retrieved successfully", data=products)
 
+@app.route('/offers')
+def offers():
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+
+    user_email = session['user_email']
+    # Fetch offers for the logged-in seller from the database
+    seller_offers = get_seller_offers(user_email)
+    # Fetch offers made by the logged-in customer from the database
+    customer_offers = get_customer_offers(user_email)
+
+    return render_template('offers.html', seller_offers=seller_offers, customer_offers=customer_offers)
+
+# Helper functions to fetch offers - implement these according to your database schema
+def get_seller_offers(user_email):
+    # Logic to get all offers where the current user is the seller
+    return []
+
+def get_customer_offers(user_email):
+    # Logic to get all offers where the current user is the customer
+    return []
+
+
+@app.route('/payment')
+def payment():
+    offer_id = request.args.get('offerId')
+    # Fetch payment details for the offer using the offer_id
+    # For example, get the seller's payment QR code information from the database
+    payment_details = get_payment_details(offer_id)
+    return render_template('payment.html', payment_details=payment_details)
+
+def get_payment_details(offer_id):
+    # Implement this function to retrieve payment details from the database
+    # For now, just returning a placeholder dictionary
+    return {'qr_code_url': 'https://example.com/qr_code.png', 'offer_id': offer_id}
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
