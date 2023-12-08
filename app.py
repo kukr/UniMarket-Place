@@ -23,7 +23,11 @@ def signup():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-
+        # get .edu from email
+        email = username.split('@')[1]
+        if not email.endswith('.edu'):
+            flash('Please use an .edu email address.', 'danger')
+            return redirect(url_for('signup'))
         # Create the user
         try:
             user = auth.create_user_with_email_and_password(username, password)
@@ -94,7 +98,7 @@ def home():
 
         # Filter products based on the search term
         filtered_products = [
-            {'name': val.get('name', ''), 'description': val.get('description', ''), 'image_link': val.get('image_link', ''), 'price': val.get('price', '')}
+            {'name': val.get('name', ''), 'description': val.get('description', ''), 'image_link': val.get('images', '[]')[0], 'price': val.get('price', '')}
             for key, val in all_products.items() if search_term.lower() in val.get('name', '').lower()
         ]
 
@@ -129,15 +133,24 @@ def process_and_post_product(request):
             "name": request.form['product_name'],
             "description": request.form['product_description'],
             "price": request.form['product_price'],
-            "images": []
+            "images": request.form.getlist('product_image'),
         }
-
-        images = request.files.getlist('product_images')
+        images = request.files.getlist('product_image')
         for image in images:
             if image:
+                # Secure a filename and generate a unique one
                 filename = secure_filename(image.filename)
                 unique_filename = f"{uuid.uuid4()}_{filename}"
-                s3.upload_fileobj(image, s3_bucket_name, unique_filename)
+
+                # Upload the file to S3
+                s3.upload_fileobj(
+                    image, 
+                    s3_bucket_name, 
+                    unique_filename
+                    # ExtraArgs={'ACL': 'public-read'}  # Optional: Set ACL to public-read if you want the file to be publicly accessible
+                )
+
+                # Add the URL to the product data
                 image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
                 product_data["images"].append(image_url)
 
