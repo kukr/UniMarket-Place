@@ -34,32 +34,60 @@
         background-color: #4cae4c;
     }
 
-    .product {
-        margin: 10px;
-        border: 1px solid #ddd;
-        padding: 10px;
-        border-radius: 5px;
-        text-align: center;
-        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-        background-color: #f9f9f9;
-        flex-basis: calc(25% - 20px); /* Adjust width to fit 4 items per row, accounting for margin */
-    }
-
-    .product h2 {
-        color: #333;
-    }
-
     .product-list {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start; /* Align items to the start */
+        gap: 20px; /* Space between products */
+    }
+    .user-products {
+        background-color: #f8f8f8; /* Light grey background for subtle contrast */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+    .product {
+        flex-basis: calc(23% - 20px); /* Adjust width to fit 3 items per row, accounting for gap */
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden; /* Ensures the child elements do not overflow the border-radius */
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
     .product img {
         width: 100%;
-        height: auto;
-        object-fit: cover; 
-        margin-bottom: 10px;
+        height: 200px; /* Fixed height for uniformity */
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 15px;
+        text-align: left;
+    }
+
+    .product-info h2 {
+        margin-top: 0;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .product-info p {
+        margin: 5px 0;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .product-info .price {
+        font-weight: bold;
+        color: #5cb85c;
     }
 
     .title {
@@ -155,16 +183,32 @@
     </form>
 </div>
 
-{% if products %}
+<!-- {% if products %}
     <div class="product-list">
         {% for product in products %}
             <div class="product">
-                <h2>{{ product.name }}</h2>
                 <img src="{{ product.image_link }}" alt="{{ product.name }}">
+                <h2>{{ product.name }}</h2>
                 <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
                 <p>Cost: ${{ product.price }}</p>
             </div>
         {% endfor %}
+    </div>
+{% endif %} -->
+{% if products %}
+<div class="user-products">
+        <div class="product-list">
+            {% for product in products %}
+                <div class="product">
+                    <img src="{{ product.image_link }}" alt="{{ product.name }}">
+                    <div class="product-info">
+                        <h2>{{ product.name }}</h2>
+                        <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                        <p class="price">Cost: ${{ product.price }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endif %}
 {% endblock %}

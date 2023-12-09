@@ -45,7 +45,7 @@ def login():
 
     
     if session.get('user_email', None):
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('home'))
 
     # Initialize the login form
     class LoginForm(FlaskForm):
@@ -67,7 +67,7 @@ def login():
         # if user.get('user_email', None):
         #     flash('You have been logged in.', 'success')
         #     
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('home'))
     except:
         flash('Invalid username or password.', 'danger')
         return redirect(url_for('login'))
