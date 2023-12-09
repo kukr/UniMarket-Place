@@ -173,7 +173,7 @@ def process_and_post_product(request):
             "category": request.form['product_category'],
             "condition": request.form['product_condition'],
             "seller_email": session['user_email'],
-            "posted_at": datetime.now().isoformat(),
+            "posted_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
         
         images = request.files.getlist('product_image')
@@ -195,12 +195,13 @@ def process_and_post_product(request):
                 image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
                 product_data["images"].append(image_url)
 
+        print("success")
         # Save product data to Firestore
         products_ref.push(product_data)
 
         return True
     except Exception as e:
-        print(e)
+        print("YOOOO",e)
         return False
 
 @app.route('/product/post', methods=['POST', 'GET'])
