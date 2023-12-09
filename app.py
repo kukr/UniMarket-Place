@@ -125,7 +125,8 @@ def home():
                     'image_link': val.get('images', [''])[0],
                     'price': val.get('price', ''),
                     'category': val.get('category', ''),
-                    'condition': val.get('condition', '')
+                    'condition': val.get('condition', ''),
+                    'posted_at': val.get('posted_at', '')
                 })
 
         # Sorting logic
@@ -137,6 +138,11 @@ def home():
             filtered_products.sort(key=lambda x: x['name'].lower())
         elif sort_order == 'name_desc':
             filtered_products.sort(key=lambda x: x['name'].lower(), reverse=True)
+        elif sort_order == 'date_asc':
+            filtered_products.sort(key=lambda x: x['posted_at'])
+        elif sort_order == 'date_desc':
+            filtered_products.sort(key=lambda x: x['posted_at'], reverse=True)
+        
 
         return render_template('home.html', products=filtered_products)
 
