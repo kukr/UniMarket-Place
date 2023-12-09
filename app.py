@@ -105,6 +105,8 @@ def home():
         selected_category = request.form.get('category', '')
         sort_order = request.form.get('sort', '')
         condition = request.form.get('condition', '')
+        campus = request.form.get('campus', '')
+
 
         all_products_response = products_ref.get()
 
@@ -119,6 +121,15 @@ def home():
                     continue
                 if condition and val.get('condition', '') != condition:
                     continue
+                if campus == 'self_campus':
+                    seller_email = val.get('seller_email', '')
+                    if not seller_email:
+                        continue
+                    seller_campus = seller_email.split('@')[1].split('.')[0]
+    
+                    if seller_campus != session['user_email'].split('@')[1].split('.')[0]:
+                        continue
+                    
                 filtered_products.append({
                     'name': val.get('name', ''),
                     'description': val.get('description', ''),
