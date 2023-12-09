@@ -25,6 +25,13 @@ def encode_email(email):
     encoded_email = base64.b64encode(email.encode())
     return encoded_email
 
+def get_all_products():
+    # Fetch all products from the database
+    all_products_response = products_ref.get()
+    all_products = all_products_response.val() if all_products_response.val() else {}
+    del all_products['offers']
+    return all_products
+
 def decode_email(encoded_email):
     # Decode the Base64-encoded email
     decoded_email = base64.b64decode(encoded_email).decode('utf-8')
@@ -127,11 +134,7 @@ def home():
         campus = request.form.get('campus', '')
 
 
-        all_products_response = products_ref.get()
-
-        # Convert PyreResponse to a dictionary
-        all_products = all_products_response.val() if all_products_response.val() else {}
-
+        all_products = get_all_products()
         # Filter products
         filtered_products = []
         for key, val in all_products.items():
