@@ -323,11 +323,12 @@ def negotiate(product_id):
         offer = db.child('offers').child(offer_key).get().val()
         if offer:
             if offer['offer_status'] == offer_status or offer['offer_status'] == OFFER_ACC or offer['offer_status'] == OFFER_REJ:
-                return jsonify(message="Not your turn to negotiate", data={}), 409
+                flash('Not your turn to negotiate.', 'danger')
+                return redirect(url_for('offers'))
         db.child('offers').child(offer_key).set(offer_data)
         return redirect(url_for('offers'))
     except Exception as e:
-        print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
 
 @app.route('/offers/accept/<product_id>', methods = ['POST'])
@@ -349,14 +350,8 @@ def accept(product_id):
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
-
-# @app.route('/users/rate_seller', methods = ['POST'])
-# def rate_seller():
-#     if not session.get('user_email'):
-#         return redirect(url_for('login'))
-
-#     return redirect(url_for('offers'))
 
 @app.route('/offers/reject/<product_id>', methods = ['POST'])
 def reject(product_id):
@@ -372,6 +367,7 @@ def reject(product_id):
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
  
 @app.route('/offers/paid/<product_id>', methods = ['POST'])
@@ -390,6 +386,7 @@ def paid(product_id):
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
        
 @app.route('/offers')
@@ -441,6 +438,46 @@ def get_payment_details(offer_id):
     return {'qr_code_url': 'https://example.com/qr_code.png', 'offer_id': offer_id}
 
 
+@app.route('/users/rate_seller/<seller_id>', methods = ['POST'])
+def rate_seller(seller_id):
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    seller_id = encode_email(seller_id)
+    rating = db.child('users').child(seller_id).get().val()
+    if rating:
+        rating['seller_rating'] = rating['seller_rating']*rating['seller_rating_count'] + int(request.form.get('rating'))
+        rating['seller_rating_count'] += 1
+        rating['seller_rating'] /= rating['seller_rating_count']
+    else:
+        rating = {
+            'seller_rating' : int(request.form.get('rating')),
+            'seller_rating_count' : 1,
+            'buyer_rating' : 0,
+            'buyer_rating_count' : 0,
+        }
+    db.child('users').child(seller_id).set(rating)
+    return redirect(url_for('offers'))
+
+
+@app.route('/users/rate_buyer/<buyer_id>', methods = ['POST'])
+def rate_buyer(buyer_id):
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    buyer_id = encode_email(buyer_id)
+    rating = db.child('users').child(buyer_id).get().val()
+    if rating:
+        rating['buyer_rating'] = rating['buyer_rating']*rating['buyer_rating_count'] + int(request.form.get('rating'))
+        rating['buyer_rating_count'] += 1
+        rating['buyer_rating'] /= rating['buyer_rating_count']
+    else:
+        rating = {
+            'seller_rating' : 0,
+            'seller_rating_count' : 0,
+            'buyer_rating' : int(request.form.get('rating')),
+            'buyer_rating_count' : 1,
+        }
+    db.child('users').child(buyer_id).set(rating)
+    return redirect(url_for('offers'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
