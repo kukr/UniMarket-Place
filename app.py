@@ -337,7 +337,6 @@ def accept(product_id):
         return redirect(url_for('login'))
     try: 
         # Fetching all offers
-        offer_accepted = False
         all_offers = db.child('offers')
         buyer_email = request.form.get('buyer_email')
         # Updating offer_status to "rejected" for offers with the given product_id
@@ -345,7 +344,6 @@ def accept(product_id):
             if offer_data['product_id'] == product_id:
                 if offer_data['buyer_email'] == buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_ACC})
-                    offer_accepted = True
                 else:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
         return redirect(url_for('offers'))
@@ -359,7 +357,6 @@ def reject(product_id):
     # Logic to rejecting offer
     if not session.get('user_email'):
         return redirect(url_for('login'))
-    product = products_ref.child(product_id).get()
     try: 
         # Fetching all offers
         buyer_email = request.form.get('buyer_email')
@@ -370,7 +367,25 @@ def reject(product_id):
     except Exception as e:
         print(e)
         return redirect(url_for('offers'))
-    
+ 
+@app.route('/offers/paid/<product_id>', methods = ['POST'])
+def paid(product_id):
+    # Logic to ack payment
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    try: 
+        # Fetching all offers
+        buyer_email = request.form.get('buyer_email')
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
+        # Updating offer_status to "rejected" for offers with the given product_id
+        offer = db.child('offers').child(offer_key).get().val()
+        if offer['seller_email'] ==  session['user_email']:
+            db.child('offers').child(offer_key).update({'offer_status': PAID})
+        return redirect(url_for('offers'))
+    except Exception as e:
+        print(e)
+        return redirect(url_for('offers'))
+       
 @app.route('/offers')
 def offers():
     if not session.get('user_email'):
@@ -390,7 +405,8 @@ def get_seller_offers(user_email):
     for _, offer_data in db.child('offers').get().val().items():
         if offer_data['seller_email'] == user_email:
             offers.append(offer_data)
-    return offers
+    sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
+    return sorted_offers
 
 def get_customer_offers(user_email):
     # Logic to get all offers where the current user is the customer
@@ -399,7 +415,8 @@ def get_customer_offers(user_email):
         print(offer_data)
         if offer_data['buyer_email'] == user_email:
             offers.append(offer_data)
-    return offers
+    sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
+    return sorted_offers
 
 
 @app.route('/payment')
