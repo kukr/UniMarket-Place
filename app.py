@@ -9,7 +9,7 @@ from datetime import datetime
 import base64
 
 import uuid
-import datetime
+
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a secret key
@@ -31,7 +31,13 @@ def get_all_products():
     all_products_response = products_ref.get()
     all_products = all_products_response.val() if all_products_response.val() else {}
     del all_products['offers']
-    return all_products
+    del all_products['users']
+    # remove self products
+    copy_of_all_products = all_products.copy()
+    for key, val in all_products.items():
+        if val.get('seller_email', '') == session['user_email']:
+            del copy_of_all_products[key]
+    return copy_of_all_products
 
 def decode_email(encoded_email):
     # Decode the Base64-encoded email
@@ -272,7 +278,7 @@ def get_product(product_id):
     product = get_product_by_id(product_id)
     print(product)
     if product:
-        return render_template('product_detail.html', product=product)
+        return render_template('product_detail.html', product=product ,product_id=product_id)
     else:
         flash('Product not found.', 'danger')
         return redirect(url_for('dashboard'))
@@ -298,6 +304,7 @@ def list_products():
 
 @app.route('/offers/negotiate/<product_id>', methods = ['POST'])
 def negotiate(product_id):
+    print(request.form.get('offer_price'))
     # Logic to support negotiation
     if not session.get('user_email'):
         return redirect(url_for('login'))
@@ -316,7 +323,7 @@ def negotiate(product_id):
             'product_id': product_id,
             'seller_email': seller_email,
             'buyer_email': user_email,
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.datetime.now().isoformat(),
             'offer_price': request.form.get('offer_price'),
             'offer_status': offer_status,
         }
