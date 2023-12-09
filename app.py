@@ -159,7 +159,8 @@ def home():
                     'price': val.get('price', ''),
                     'category': val.get('category', ''),
                     'condition': val.get('condition', ''),
-                    'posted_at': val.get('posted_at', '')
+                    'posted_at': val.get('posted_at', ''),
+                    'product_id': key
                 })
 
         # Sorting logic
@@ -266,12 +267,20 @@ def post_product():
 def get_product(product_id):
     if not session.get('user_email', None):
         return redirect(url_for('login'))
-    product = products_ref.child(product_id).get()
+
+    product = get_product_by_id(product_id)
+    print(product)
     if product:
-        return jsonify(message="Product found", data=product)
+        return render_template('product_detail.html', product=product)
     else:
-        return jsonify(message="Product not found", data={}), 404
-    
+        flash('Product not found.', 'danger')
+        return redirect(url_for('dashboard'))
+
+def get_product_by_id(product_id):
+    # Implement this function to fetch product data from the database
+    # For example:
+    return products_ref.child(product_id).get().val()
+
 @app.route('/product/delete/<product_id>', methods=['DELETE'])
 def delete_product(product_id):
     if not session.get('user_email', None):

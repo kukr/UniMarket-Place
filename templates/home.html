@@ -185,30 +185,19 @@
         
     </form>
 </div>
-
-<!-- {% if products %}
-    <div class="product-list">
-        {% for product in products %}
-            <div class="product">
-                <img src="{{ product.image_link }}" alt="{{ product.name }}">
-                <h2>{{ product.name }}</h2>
-                <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
-                <p>Cost: ${{ product.price }}</p>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %} -->
 {% if products %}
 <div class="user-products">
         <div class="product-list">
             {% for product in products %}
                 <div class="product">
+                    <a href="/product/{{ product.product_id }}" style="text-decoration: none; color: inherit;">
                     <img src="{{ product.image_link }}" alt="{{ product.name }}">
                     <div class="product-info">
                         <h2>{{ product.name }}</h2>
                         <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
                         <p class="price">Cost: ${{ product.price }}</p>
                     </div>
+                    </a>
                 </div>
             {% endfor %}
         </div>
