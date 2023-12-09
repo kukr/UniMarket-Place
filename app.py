@@ -78,7 +78,14 @@ def dashboard():
     # If user is not logged in, redirect to login
     if not session.get('user_email', None):
         return redirect(url_for('login'))
-    return render_template('dashboard.html')
+    # Fetch products posted by the current user
+    current_user_email = session['user_email']
+    all_products_response = products_ref.get()
+    user_products = [
+        product for product in all_products_response.val().values()
+        if product.get('seller') == current_user_email
+    ]
+    return render_template('dashboard.html', user_products=user_products)
 
 @app.route('/logout')
 def logout():
@@ -137,6 +144,7 @@ def process_and_post_product(request):
             "description": request.form['product_description'],
             "price": request.form['product_price'],
             "images": request.form.getlist('product_image'),
+            "seller": session['user_email'],
         }
         images = request.files.getlist('product_image')
         for image in images:

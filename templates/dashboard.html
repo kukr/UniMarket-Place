@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
+    .dashboard-container {
+        display: flex;
+    }
+
+    .post-product-form {
+        flex: 0.5; /* Takes half of the space */
+        /* padding: 20px; */
+    }
+
+    .user-products {
+        flex: 1; /* Takes half of the space */
+        padding: 20px;
+    }
         .header {
             width: 100%;
             display: flex;
@@ -27,17 +40,172 @@
         .header button:hover {
             background-color: #45a049;
         }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            /* center the form on page */
+            margin: 0 auto;
+            position: relative;
+            top: 5%;
+            
+        }
 
-        /* ... responsive styling ... */
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+                height: auto;
+            }
+
+            form {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+        .product-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start; /* Align items to the start */
+        gap: 20px; /* Space between products */
+    }
+    .user-products {
+        background-color: #f8f8f8; /* Light grey background for subtle contrast */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+    .product {
+        flex-basis: calc(33% - 20px); /* Adjust width to fit 3 items per row, accounting for gap */
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden; /* Ensures the child elements do not overflow the border-radius */
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .product img {
+        width: 100%;
+        height: 200px; /* Fixed height for uniformity */
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 15px;
+        text-align: left;
+    }
+
+    .product-info h2 {
+        margin-top: 0;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .product-info p {
+        margin: 5px 0;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .product-info .price {
+        font-weight: bold;
+        color: #5cb85c;
+    }
     </style>
 </head>
 <body>
     {% extends "base.html" %}
     {% block content %}
-    <div>
-        <h1>Welcome to the dashboard!</h1>
-        <!-- Dashboard content goes here -->
+    <div class="dashboard-container">
+        <div class="post-product-form">
+            <!-- Form for posting new product -->
+            <form action="{{ url_for('post_product') }}" method="post" enctype="multipart/form-data">
+            <h1>Post a New Product</h1>
+            <label for="product_name">Product Name:</label><br>
+            <input type="text" id="product_name" name="product_name" required><br>
+
+            <label for="product_description">Product Description:</label><br>
+            <textarea id="product_description" name="product_description" required></textarea><br>
+
+            <label for="product_price">Product Price:</label><br>
+            <input type="number" id="product_price" name="product_price" required><br>
+
+            <label for="product_image">Product Image:</label><br>
+            <input type="file" id="product_image" name="product_image" accept="image/*" multiple><br>
+
+            <!-- Add other fields as necessary -->
+
+            <input type="submit" value="Post Product">
+        </form>
     </div>
-    {% endblock %}
+    <div class="user-products">
+        <h1>Your Products</h1>
+        {% if user_products %}
+            <div class="product-list">
+                {% for product in user_products %}
+                    <div class="product">
+                        <img src="{{ product.images[0] }}" alt="{{ product.name }}">
+                        <div class="product-info">
+                            <h2>{{ product.name }}</h2>
+                            <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                            <p class="price">Cost: ${{ product.price }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No products posted yet.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}
 </body>
 </html>
