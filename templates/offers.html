@@ -62,9 +62,18 @@
             display: block;
         }
 
+        .tabs {
+          display: flex;
+          justify-content: center; /* Center tabs horizontally */
+        }
         .tabs button.active {
             bg-gray-200;
             color: #000;
+        }
+
+        /* Hover effect for non-active tabs */
+        .tabs button:not(.active):hover {
+            background-color: #bee3f8; /* Lighter blue to indicate hover state for non-active tabs */
         }
 
         .button {
@@ -73,6 +82,14 @@
 
       .button:hover {
         background-color: #e2e8f0;
+      }
+
+      /* Card styles for vertical and horizontal centering */
+      .card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
     </style>
   </head>
@@ -96,7 +113,7 @@
       </div>
 
       <!-- Seller Offers Tab Content -->
-      <div id="sellerOffers" class="tab-content active">
+      <div id="sellerOffers" class="tab-content active card">
         <!-- Seller offers content similar to the previous HTML structure -->
         <div class="container mx-auto p-4">
           <div class="bg-white shadow overflow-hidden sm:rounded-lg">
