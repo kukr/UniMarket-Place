@@ -223,7 +223,7 @@ def process_and_post_product(request):
             "category": request.form['product_category'],
             "condition": request.form['product_condition'],
             "seller_email": session['user_email'],
-            "posted_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "posted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
         
         images = request.files.getlist('product_image')
