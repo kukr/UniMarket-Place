@@ -48,13 +48,14 @@
         margin-top: 20px;
     }
     .product {
-        flex-basis: calc(23% - 20px); /* Adjust width to fit 3 items per row, accounting for gap */
+        flex-basis: calc(23%); /* Adjust width to fit 3 items per row, accounting for gap */
         border: 1px solid #ddd;
         border-radius: 10px;
         overflow: hidden; /* Ensures the child elements do not overflow the border-radius */
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin: 0 auto;
     }
 
     .product:hover {
