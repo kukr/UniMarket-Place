@@ -195,13 +195,13 @@ def process_and_post_product(request):
                 image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
                 product_data["images"].append(image_url)
 
-        print("success")
+        
         # Save product data to Firestore
         products_ref.push(product_data)
 
         return True
     except Exception as e:
-        print("YOOOO",e)
+        print(e)
         return False
 
 @app.route('/product/post', methods=['POST', 'GET'])
