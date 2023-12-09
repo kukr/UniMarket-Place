@@ -330,11 +330,12 @@ def negotiate(product_id):
         offer = db.child('offers').child(offer_key).get().val()
         if offer:
             if offer['offer_status'] == offer_status or offer['offer_status'] == OFFER_ACC or offer['offer_status'] == OFFER_REJ:
-                return jsonify(message="Not your turn to negotiate", data={}), 409
+                flash('Not your turn to negotiate.', 'danger')
+                return redirect(url_for('offers'))
         db.child('offers').child(offer_key).set(offer_data)
         return redirect(url_for('offers'))
     except Exception as e:
-        print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
 
 @app.route('/offers/accept/<product_id>', methods = ['POST'])
@@ -344,7 +345,6 @@ def accept(product_id):
         return redirect(url_for('login'))
     try: 
         # Fetching all offers
-        offer_accepted = False
         all_offers = db.child('offers')
         buyer_email = request.form.get('buyer_email')
         # Updating offer_status to "rejected" for offers with the given product_id
@@ -352,21 +352,19 @@ def accept(product_id):
             if offer_data['product_id'] == product_id:
                 if offer_data['buyer_email'] == buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_ACC})
-                    offer_accepted = True
                 else:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
-
 
 @app.route('/offers/reject/<product_id>', methods = ['POST'])
 def reject(product_id):
     # Logic to rejecting offer
     if not session.get('user_email'):
         return redirect(url_for('login'))
-    product = products_ref.child(product_id).get()
     try: 
         # Fetching all offers
         buyer_email = request.form.get('buyer_email')
@@ -376,8 +374,28 @@ def reject(product_id):
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
+        flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
-    
+ 
+@app.route('/offers/paid/<product_id>', methods = ['POST'])
+def paid(product_id):
+    # Logic to ack payment
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    try: 
+        # Fetching all offers
+        buyer_email = request.form.get('buyer_email')
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
+        # Updating offer_status to "rejected" for offers with the given product_id
+        offer = db.child('offers').child(offer_key).get().val()
+        if offer['seller_email'] ==  session['user_email']:
+            db.child('offers').child(offer_key).update({'offer_status': PAID})
+        return redirect(url_for('offers'))
+    except Exception as e:
+        print(e)
+        flash('Product not found.', 'danger')
+        return redirect(url_for('offers'))
+       
 @app.route('/offers')
 def offers():
     if not session.get('user_email'):
@@ -396,17 +414,21 @@ def get_seller_offers(user_email):
     offers = []
     for _, offer_data in db.child('offers').get().val().items():
         if offer_data['seller_email'] == user_email:
+            offer_data['product'] = get_product_by_id(offer_data['product_id'])
             offers.append(offer_data)
-    return offers
+    sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
+    return sorted_offers
 
 def get_customer_offers(user_email):
     # Logic to get all offers where the current user is the customer
     offers = []
     for _, offer_data in db.child('offers').get().val().items():
-        print(offer_data)
         if offer_data['buyer_email'] == user_email:
+            offer_data['product'] = get_product_by_id(offer_data['product_id'])
             offers.append(offer_data)
-    return offers
+        print(offer_data)
+    sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
+    return sorted_offers
 
 
 @app.route('/payment')
@@ -423,6 +445,46 @@ def get_payment_details(offer_id):
     return {'qr_code_url': 'https://example.com/qr_code.png', 'offer_id': offer_id}
 
 
+@app.route('/users/rate_seller/<seller_id>', methods = ['POST'])
+def rate_seller(seller_id):
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    seller_id = encode_email(seller_id)
+    rating = db.child('users').child(seller_id).get().val()
+    if rating:
+        rating['seller_rating'] = rating['seller_rating']*rating['seller_rating_count'] + int(request.form.get('rating'))
+        rating['seller_rating_count'] += 1
+        rating['seller_rating'] /= rating['seller_rating_count']
+    else:
+        rating = {
+            'seller_rating' : int(request.form.get('rating')),
+            'seller_rating_count' : 1,
+            'buyer_rating' : 0,
+            'buyer_rating_count' : 0,
+        }
+    db.child('users').child(seller_id).set(rating)
+    return redirect(url_for('offers'))
+
+
+@app.route('/users/rate_buyer/<buyer_id>', methods = ['POST'])
+def rate_buyer(buyer_id):
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    buyer_id = encode_email(buyer_id)
+    rating = db.child('users').child(buyer_id).get().val()
+    if rating:
+        rating['buyer_rating'] = rating['buyer_rating']*rating['buyer_rating_count'] + int(request.form.get('rating'))
+        rating['buyer_rating_count'] += 1
+        rating['buyer_rating'] /= rating['buyer_rating_count']
+    else:
+        rating = {
+            'seller_rating' : 0,
+            'seller_rating_count' : 0,
+            'buyer_rating' : int(request.form.get('rating')),
+            'buyer_rating_count' : 1,
+        }
+    db.child('users').child(buyer_id).set(rating)
+    return redirect(url_for('offers'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
