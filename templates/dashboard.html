@@ -159,6 +159,52 @@
         font-weight: bold;
         color: #5cb85c;
     }
+
+
+    label, input[type="text"], input[type="number"], input[type="password"], input[type="file"], textarea, select {
+            display: block; /* Makes each element take the full width */
+            width: 100%; /* Ensures uniform width */
+            margin-top: 5px; /* Top margin for spacing */
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        input[type="file"],
+        textarea,
+        select {
+            padding: 4px;
+            margin-bottom: 10px; /* Space after each input field */
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+
+        label {
+            margin-bottom: 2px; /* Space between label and input field */
+            color: #333;
+            font-size: 14px; /* Adjust as needed */
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            label, input[type="text"], input[type="number"], input[type="password"], input[type="file"], textarea, select {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -196,7 +242,6 @@
                 </select><br>
 
             <!-- Add other fields as necessary -->
-
             <input type="submit" value="Post Product">
         </form>
     </div>

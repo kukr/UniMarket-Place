@@ -5,11 +5,30 @@ from wtforms.validators import DataRequired
 from werkzeug.utils import secure_filename
 from fire_base_config import *
 from aws_config import *
+from datetime import datetime
+import base64
+
 import uuid
 import datetime
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a secret key
+
+#negotiation states
+OFFER_ACC = "OFFER_ACCEPTED"
+OFFER_REJ = "OFFER_REJECTED"
+SELLER = "SELLER_OFFER"
+BUYER = "BUYER_OFFER"
+
+def encode_email(email):
+    # Encode the email using Base64
+    encoded_email = base64.b64encode(email.encode())
+    return encoded_email
+
+def decode_email(encoded_email):
+    # Decode the Base64-encoded email
+    decoded_email = base64.b64decode(encoded_email).decode('utf-8')
+    return decoded_email
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -182,6 +201,9 @@ def get_user(user_id):
 # @app.route('/post_product', methods=['POST'])
 def process_and_post_product(request):
     try:
+        if not session.get('user_email', None):
+            return redirect(url_for('login'))
+        user_email = session.get('user_email', None)
         product_data = {
             "name": request.form['product_name'],
             "description": request.form['product_description'],
@@ -261,6 +283,82 @@ def list_products():
     products = products_ref.get()
     return jsonify(message="Products retrieved successfully", data=products)
 
+@app.route('/negotiate/<product_id>', methods = ['POST'])
+def negotiate(product_id):
+    # Logic to support negotiation
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    user_email = session['user_email']
+    product = products_ref.child(product_id).get()
+    try: 
+        seller_email = product.val()['seller_email']
+        offer_status = ""
+        if user_email == seller_email:
+            offer_status = SELLER
+        else:
+            offer_status = BUYER
+        offer_key = f"{product_id}_{encode_email(user_email)}"
+        # Creating a dictionary representing the offer data
+        offer_data = {
+            'product_id': product_id,
+            'seller_email': seller_email,
+            'buyer_email': user_email,
+            'timestamp': datetime.now().isoformat(),
+            'offer_price': request.form.get('offer_price'),
+            'offer_status': offer_status,
+        }
+        offer = db.child('offers').child(offer_key).get().val()
+        if offer:
+            if offer['offer_status'] == offer_status or offer['offer_status'] == OFFER_ACC or offer['offer_status'] == OFFER_REJ:
+                return jsonify(message="Not your turn to negotiate", data={}), 409
+        db.child('offers').child(offer_key).set(offer_data)
+        return jsonify(message="Negotiated successfully", data=user_email)
+    except Exception as e:
+        print(e)
+        return jsonify(message="Product not found", data={}), 404
+
+@app.route('/accept/<product_id>', methods = ['POST'])
+def accept(product_id):
+    # Logic to accepting offer
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    try: 
+        # Fetching all offers
+        offer_accepted = False
+        all_offers = db.child('offers')
+        buyer_email = request.form.get('buyer_email')
+        # Updating offer_status to "rejected" for offers with the given product_id
+        for offer_key, offer_data in all_offers.get().val().items():
+            if offer_data['product_id'] == product_id:
+                if offer_data['buyer_email'] == buyer_email:
+                    db.child('offers').child(offer_key).update({'offer_status': OFFER_ACC})
+                    offer_accepted = True
+                else:
+                    db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
+        if offer_accepted:
+            return jsonify(message="Accepted successfully")
+        else:
+            return jsonify(message="Offer not found", data={}), 404
+    except Exception as e:
+        print(e)
+        return jsonify(message="Product not found", data={}), 404
+
+@app.route('/reject/<product_id>', methods = ['POST'])
+def reject(product_id):
+    # Logic to rejecting offer
+    if not session.get('user_email'):
+        return redirect(url_for('login'))
+    product = products_ref.child(product_id).get()
+    try: 
+        # Fetching all offers
+        buyer_email = request.form.get('buyer_email')
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
+        # Updating offer_status to "rejected" for offers with the given product_id
+        db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
+    except Exception as e:
+        print(e)
+        return jsonify(message="Product not found", data={}), 404
+    
 @app.route('/offers')
 def offers():
     if not session.get('user_email'):
