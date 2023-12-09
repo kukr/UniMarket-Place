@@ -369,17 +369,25 @@ def offers():
     seller_offers = get_seller_offers(user_email)
     # Fetch offers made by the logged-in customer from the database
     customer_offers = get_customer_offers(user_email)
-
     return render_template('offers.html', seller_offers=seller_offers, customer_offers=customer_offers)
 
 # Helper functions to fetch offers - implement these according to your database schema
 def get_seller_offers(user_email):
     # Logic to get all offers where the current user is the seller
-    return []
+    offers = []
+    for _, offer_data in db.child('offers').get().val().items():
+        if offer_data['seller_email'] == user_email:
+            offers.append(offer_data)
+    return offers
 
 def get_customer_offers(user_email):
     # Logic to get all offers where the current user is the customer
-    return []
+    offers = []
+    for _, offer_data in db.child('offers').get().val().items():
+        print(offer_data)
+        if offer_data['buyer_email'] == user_email:
+            offers.append(offer_data)
+    return offers
 
 
 @app.route('/payment')
