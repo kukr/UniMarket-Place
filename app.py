@@ -351,6 +351,12 @@ def accept(product_id):
         print(e)
         return redirect(url_for('offers'))
 
+# @app.route('/users/rate_seller', methods = ['POST'])
+# def rate_seller():
+#     if not session.get('user_email'):
+#         return redirect(url_for('login'))
+
+#     return redirect(url_for('offers'))
 
 @app.route('/offers/reject/<product_id>', methods = ['POST'])
 def reject(product_id):
@@ -404,6 +410,7 @@ def get_seller_offers(user_email):
     offers = []
     for _, offer_data in db.child('offers').get().val().items():
         if offer_data['seller_email'] == user_email:
+            offer_data['product'] = get_product_by_id(offer_data['product_id'])
             offers.append(offer_data)
     sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
     return sorted_offers
@@ -412,9 +419,10 @@ def get_customer_offers(user_email):
     # Logic to get all offers where the current user is the customer
     offers = []
     for _, offer_data in db.child('offers').get().val().items():
-        print(offer_data)
         if offer_data['buyer_email'] == user_email:
+            offer_data['product'] = get_product_by_id(offer_data['product_id'])
             offers.append(offer_data)
+        print(offer_data)
     sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
     return sorted_offers
 
