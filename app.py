@@ -19,6 +19,7 @@ OFFER_ACC = "OFFER_ACCEPTED"
 OFFER_REJ = "OFFER_REJECTED"
 SELLER = "SELLER_OFFER"
 BUYER = "BUYER_OFFER"
+PAID = "PAYMENT_DONE"
 
 def encode_email(email):
     # Encode the email using Base64
@@ -286,7 +287,7 @@ def list_products():
     products = products_ref.get()
     return jsonify(message="Products retrieved successfully", data=products)
 
-@app.route('/negotiate/<product_id>', methods = ['POST'])
+@app.route('/offers/negotiate/<product_id>', methods = ['POST'])
 def negotiate(product_id):
     # Logic to support negotiation
     if not session.get('user_email'):
@@ -315,12 +316,12 @@ def negotiate(product_id):
             if offer['offer_status'] == offer_status or offer['offer_status'] == OFFER_ACC or offer['offer_status'] == OFFER_REJ:
                 return jsonify(message="Not your turn to negotiate", data={}), 409
         db.child('offers').child(offer_key).set(offer_data)
-        return jsonify(message="Negotiated successfully", data=user_email)
+        return redirect(url_for('offers'))
     except Exception as e:
         print(e)
-        return jsonify(message="Product not found", data={}), 404
+        return redirect(url_for('offers'))
 
-@app.route('/accept/<product_id>', methods = ['POST'])
+@app.route('/offers/accept/<product_id>', methods = ['POST'])
 def accept(product_id):
     # Logic to accepting offer
     if not session.get('user_email'):
@@ -338,15 +339,13 @@ def accept(product_id):
                     offer_accepted = True
                 else:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
-        if offer_accepted:
-            return jsonify(message="Accepted successfully")
-        else:
-            return jsonify(message="Offer not found", data={}), 404
+        return redirect(url_for('offers'))
     except Exception as e:
         print(e)
-        return jsonify(message="Product not found", data={}), 404
+        return redirect(url_for('offers'))
 
-@app.route('/reject/<product_id>', methods = ['POST'])
+
+@app.route('/offers/reject/<product_id>', methods = ['POST'])
 def reject(product_id):
     # Logic to rejecting offer
     if not session.get('user_email'):
@@ -358,9 +357,10 @@ def reject(product_id):
         offer_key = f"{product_id}_{encode_email(buyer_email)}"
         # Updating offer_status to "rejected" for offers with the given product_id
         db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
+        return redirect(url_for('offers'))
     except Exception as e:
         print(e)
-        return jsonify(message="Product not found", data={}), 404
+        return redirect(url_for('offers'))
     
 @app.route('/offers')
 def offers():
