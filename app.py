@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from fire_base_config import *
 from aws_config import *
 import uuid
+import datetime
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a secret key
@@ -93,17 +94,42 @@ def home():
     if request.method == "GET":
         return render_template('home.html')
     else:
-        search_term = request.form.get('search_term')
+        search_term = request.form.get('search_term', '').lower()
+        selected_category = request.form.get('category', '')
+        sort_order = request.form.get('sort', '')
+        condition = request.form.get('condition', '')
+
         all_products_response = products_ref.get()
 
         # Convert PyreResponse to a dictionary
         all_products = all_products_response.val() if all_products_response.val() else {}
 
-        # Filter products based on the search term
-        filtered_products = [
-            {'name': val.get('name', ''), 'description': val.get('description', ''), 'image_link': val.get('images', '[]')[0], 'price': val.get('price', '')}
-            for key, val in all_products.items() if search_term.lower() in val.get('name', '').lower()
-        ]
+        # Filter products
+        filtered_products = []
+        for key, val in all_products.items():
+            if search_term in val.get('name', '').lower():
+                if selected_category and val.get('category', '') != selected_category:
+                    continue
+                if condition and val.get('condition', '') != condition:
+                    continue
+                filtered_products.append({
+                    'name': val.get('name', ''),
+                    'description': val.get('description', ''),
+                    'image_link': val.get('images', [''])[0],
+                    'price': val.get('price', ''),
+                    'category': val.get('category', ''),
+                    'condition': val.get('condition', '')
+                })
+
+        # Sorting logic
+        if sort_order == 'price_asc':
+            filtered_products.sort(key=lambda x: float(x['price']))
+        elif sort_order == 'price_desc':
+            filtered_products.sort(key=lambda x: float(x['price']), reverse=True)
+        elif sort_order == 'name_asc':
+            filtered_products.sort(key=lambda x: x['name'].lower())
+        elif sort_order == 'name_desc':
+            filtered_products.sort(key=lambda x: x['name'].lower(), reverse=True)
 
         return render_template('home.html', products=filtered_products)
 
@@ -137,7 +163,12 @@ def process_and_post_product(request):
             "description": request.form['product_description'],
             "price": request.form['product_price'],
             "images": request.form.getlist('product_image'),
-        }
+            "category": request.form['product_category'],
+            "condition": request.form['product_condition'],
+            "seller_email": session['user_email'],
+            "posted_at": datetime.now().isoformat(),
+            }
+        
         images = request.files.getlist('product_image')
         for image in images:
             if image:
