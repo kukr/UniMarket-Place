@@ -7,12 +7,15 @@ from fire_base_config import *
 from aws_config import *
 from datetime import datetime
 import base64
+import os
 
 import uuid
-
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a secret key
+
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #negotiation states
 OFFER_ACC = "OFFER_ACCEPTED"
@@ -221,11 +224,63 @@ def profile():
     user_email = session.get('user_email', None)
     if user_email:
         # If there's a user email in the session, pass it to the template
-        return render_template('profile.html', user_email=user_email)
+        profile_pic = db.child("users").child(encode_email(user_email)).child("profile_pic").get().val()
+        if not profile_pic:
+            profile_pic = 'static/images/Default_pfp.svg'
+        return render_template('profile.html', user_email=user_email, profile_pic=profile_pic)
     else:
         # If no user is logged in, redirect to login
         flash('Please log in to view this page.', 'warning')
         return redirect(url_for('login'))
+
+# Route to update the profile picture
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+    
+    if 'profile_pic' not in request.files:
+        return redirect(url_for('profile'))
+
+
+    file = request.files['profile_pic']
+
+    if file.filename == '':
+        return redirect(url_for('profile'))
+    
+    if file:
+        # Save the file locally
+        user_email = session.get('user_email', None)
+        filename = 'user_uploaded.jpg'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        # Upload the file to S3
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4()}_{filename}"
+
+        # Upload the file to S3
+        s3.upload_file(
+            file_path, 
+            s3_bucket_name, 
+            unique_filename
+            # ExtraArgs={'ACL': 'public-read'}  # Optional: Set ACL to public-read if you want the file to be publicly accessible
+        )
+        old_image = db.child("users").child(encode_email(user_email)).child("profile_pic").get().val()
+        if old_image:
+            object_key = old_image.split('/')[-1]
+            s3.delete_object(Bucket=s3_bucket_name, Key=object_key)
+        # Add the URL to the product data
+        image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
+        os.remove(file_path)  # Remove the local file after uploading
+
+        db.child("users").child(encode_email(user_email)).child("profile_pic").set(image_url)
+
+        # Return the updated profile picture URL
+        return redirect(url_for('profile'))
+
+    
+    return redirect(url_for('profile'))
 
 
 @app.route('/user/<user_id>', methods=['GET'])
@@ -339,18 +394,19 @@ def negotiate(product_id):
     product = products_ref.child(product_id).get()
     try: 
         seller_email = product.val()['seller_email']
+        buyer_email = request.form.get('buyer_email')
         offer_status = ""
         if user_email == seller_email:
             offer_status = SELLER
         else:
             offer_status = BUYER
-        offer_key = f"{product_id}_{encode_email(user_email)}"
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
         # Creating a dictionary representing the offer data
         offer_data = {
             'product_id': product_id,
             'seller_email': seller_email,
-            'buyer_email': user_email,
-            'timestamp': datetime.datetime.now().isoformat(),
+            'buyer_email': buyer_email,
+            'timestamp': datetime.now().isoformat(),
             'offer_price': request.form.get('offer_price'),
             'offer_status': offer_status,
         }
@@ -362,6 +418,7 @@ def negotiate(product_id):
         db.child('offers').child(offer_key).set(offer_data)
         return redirect(url_for('offers'))
     except Exception as e:
+        print(e)
         flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
 
