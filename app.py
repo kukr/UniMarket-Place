@@ -131,11 +131,21 @@ def dashboard():
         return redirect(url_for('login'))
     # Fetch products posted by the current user
     current_user_email = session['user_email']
-    all_products_response = products_ref.get()
-    user_products = [
-        product for product in all_products_response.val().values()
-        if product.get('seller_email') == current_user_email
-    ]
+    
+    required = get_all_products_dashboard(current_user_email)
+    user_products = []
+    for key, val in required.items():
+        user_products.append({
+            'name': val.get('name', ''),
+            'description': val.get('description', ''),
+            'images': val.get('images', ['']),
+            'price': val.get('price', ''),
+            'category': val.get('category', ''),
+            'condition': val.get('condition', ''),
+            'posted_at': val.get('posted_at', ''),
+            'product_id': key
+        })
+        
     return render_template('dashboard.html', user_products=user_products)
 
 @app.route('/logout')

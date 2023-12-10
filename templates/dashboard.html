@@ -251,6 +251,7 @@
             <div class="product-list">
                 {% for product in user_products %}
                     <div class="product">
+                        <a href="/product/{{ product.product_id }}/edit", product_id=product.id>
                         <img src="{{ product.images[0] }}" alt="{{ product.name }}">
                         <div class="product-info">
                             <h2>{{ product.name }}</h2>
