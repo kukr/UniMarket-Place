@@ -14,15 +14,15 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px; /* Maximum width */
+            max-width: 600px; /* Maximum width */
             margin: 0 auto; /* Center it */
             /* vertical centering */
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -40%);
         }
-
+    
         .profile-picture {
             width: 150px; /* Adjust the width as needed */
             height: 150px; /* Adjust the height as needed */
@@ -31,70 +31,78 @@
             margin-bottom: 10px;
             margin: auto;
         }
-
+    
         #file-input {
-        display: none;
+            display: none;
         }
-
-        .custom-file-upload {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #3498db;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+    
+        .custom-file-upload,
+        .update-button,
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-
-        .custom-file-upload:hover {
-        background-color: #2980b9;
+    
+        .custom-file-upload:hover,
+        .update-button:hover,
+        .btn-primary:hover {
+            background-color: #2980b9;
         }
-
+    
         .update-button {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #27ae60;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+            background-color: #27ae60;
+            font-size: 12px;
         }
-
-        .update-button:hover {
-        background-color: #219d54;
-        }
-
+    
         h1 {
             text-align: center;
             color: #333;
         }
-
+    
         .user-info {
             margin-top: 20px;
         }
-
+    
         .user-info p {
             font-size: 16px;
             color: #555;
         }
-
+    
+        /* Add border to textboxes */
+        form input[type="text"],
+        form input[type="tel"],
+        form input[type="password"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    
         /* Responsive styling */
         @media (max-width: 600px) {
             body {
                 padding: 10px;
                 height: auto;
             }
-
+    
             .profile-container {
                 box-shadow: none;
                 border-radius: 0;
             }
         }
     </style>
+    
+    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -113,6 +121,20 @@
             <p><strong>Email:</strong> {{ user_email }}</p>
             <!-- Add more user details here -->
         </div>
+
+        <!-- Form to update the name -->
+        <form action="/update_name" method="post">
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" value="{{ name }}" placeholder="Enter Name">
+            <button type="submit" class="update-button">Update Name</button>
+        </form>
+
+        <!-- Form to update the phone number -->
+        <form action="/update_phone" method="post">
+            <label for="phone">Phone:</label>
+            <input type="tel" name="phone" id="phone" value="{{ phone }}" placeholder="Enter Phone Number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" title="Please enter a valid phone number (e.g., 123-456-7890)">
+            <button type="submit" class="update-button">Update Phone</button>
+        </form>
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updatePasswordModal">
             Change Password
         </button>
@@ -128,7 +150,7 @@
                 </div>
                 <div class="modal-body">
                     <!-- Password update form -->
-                    <form id="updatePasswordForm">
+                    <form id="updatePasswordForm"  method="post">
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
@@ -143,9 +165,7 @@
             </div>
         </div>
     </div>
-    {% endblock %}
     <script>
-
         document.getElementById('updatePasswordForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -170,11 +190,10 @@
                 // Handle the response from the server
                 if (data.success) {
                     // Password update successful
-                    // Display a success message, you can customize this based on your UI
                     alert('Password updated successfully');
+                    document.getElementById('updatePasswordForm').reset();
                 } else {
                     // Password update failed
-                    // Display an error message, you can customize this based on your UI
                     alert('Password update failed. ' + data.error);
                 }
             })
@@ -184,8 +203,10 @@
             .finally(() => {
                 // Close the modal
                 $('#updatePasswordModal').modal('hide');
+                $('.modal-backdrop').remove();
             });
         });
     </script>
+    {% endblock %}
 </body>
 </html>

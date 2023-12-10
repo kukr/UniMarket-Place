@@ -227,7 +227,13 @@ def profile():
         profile_pic = db.child("users").child(encode_email(user_email)).child("profile_pic").get().val()
         if not profile_pic:
             profile_pic = 'static/images/Default_pfp.svg'
-        return render_template('profile.html', user_email=user_email, profile_pic=profile_pic)
+        phone = db.child("users").child(encode_email(user_email)).child("phone").get().val()
+        if not phone:
+            phone = ""
+        name = db.child("users").child(encode_email(user_email)).child("name").get().val()
+        if not name:
+            name = ""
+        return render_template('profile.html', user_email=user_email, profile_pic=profile_pic,  name=name, phone=phone)
     else:
         # If no user is logged in, redirect to login
         flash('Please log in to view this page.', 'warning')
@@ -277,8 +283,52 @@ def update_profile():
         db.child("users").child(encode_email(user_email)).child("profile_pic").set(image_url)
 
         # Return the updated profile picture URL
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile'))    
+    return redirect(url_for('profile'))
 
+@app.route('/update_password', methods=['POST'])
+def update_password():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+    # Get the user's current and new passwords from the request
+    current_password = request.form.get('currentPassword')
+    new_password = request.form.get('newPassword')
+    try:
+        # Authenticate the user
+        user = auth.sign_in_with_email_and_password(session.get('user_email', None), current_password)
+
+        # Change the user's password
+        fba_auth.update_user(user['localId'], password=new_password)
+
+        flash('Password updated successfully', 'success')
+        return jsonify({'success': True, 'message': 'Password changed successfully'})
+
+    except Exception as e:
+        flash('Incorrect current password. Password update failed.', 'error')
+        return jsonify({'success': False, 'error': 'Incorrect current password.'})
+
+
+# Route to update the name
+@app.route('/update_name', methods=['POST'])
+def update_name():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+
+    user_email = session.get('user_email', None)
+    new_name = request.form.get('name')
+    db.child("users").child(encode_email(user_email)).child("name").set(new_name)
+
+    return redirect(url_for('profile'))
+
+# Route to update the phone number
+@app.route('/update_phone', methods=['POST'])
+def update_phone():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+
+    user_email = session.get('user_email', None)
+    phone = request.form.get('phone')
+    db.child("users").child(encode_email(user_email)).child("phone").set(phone)
     
     return redirect(url_for('profile'))
 
