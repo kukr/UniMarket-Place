@@ -30,12 +30,29 @@ def get_all_products():
     # Fetch all products from the database
     all_products_response = products_ref.get()
     all_products = all_products_response.val() if all_products_response.val() else {}
-    del all_products['offers']
-    del all_products['users']
+    if 'offers' in all_products:
+        del all_products['offers']
+    if 'users' in all_products:
+        del all_products['users']
     # remove self products
     copy_of_all_products = all_products.copy()
     for key, val in all_products.items():
         if val.get('seller_email', '') == session['user_email']:
+            del copy_of_all_products[key]
+    return copy_of_all_products
+
+def get_all_products_dashboard(email):
+    # Fetch all products from the database
+    all_products_response = products_ref.get()
+    all_products = all_products_response.val() if all_products_response.val() else {}
+    if 'offers' in all_products:
+        del all_products['offers']
+    if 'users' in all_products:
+        del all_products['users']
+    # remove self products
+    copy_of_all_products = all_products.copy()
+    for key, val in all_products.items():
+        if val.get('seller_email', '') != email:
             del copy_of_all_products[key]
     return copy_of_all_products
 
@@ -485,6 +502,54 @@ def rate_buyer(buyer_id):
         }
     db.child('users').child(buyer_id).set(rating)
     return redirect(url_for('offers'))
+
+@app.route('/product/<product_id>/edit', methods=['GET'])
+def edit_product(product_id):
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+    product = get_product_by_id(product_id)
+    if product:
+        if request.method == "GET":
+            return render_template('edit_product.html', product=product, product_id=product_id)
+        
+    else:
+        flash('Product not found.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+@app.route('/product/edit', methods=['POST'])
+def update_product():
+    if not session.get('user_email', None):
+        return redirect(url_for('login'))
+    product_id = request.form['product_id']
+    product = get_product_by_id(product_id)
+    if product:
+        if request.method == "POST":
+            product_data = {
+                "name": request.form['product_name'],
+                "description": request.form['product_description'],
+                "price": request.form['product_price'],
+                "images": request.form.getlist('product_image'),
+                "category": request.form['product_category'],
+                "condition": request.form['product_condition'],
+                }
+            if update_product_in_db(product_id, product_data):
+                flash('Product updated successfully', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Error updating product', 'danger')
+                return redirect(url_for('/product/edit'))
+    else:
+        flash('Product not found.', 'danger')
+        return redirect(url_for('dashboard'))
+
+
+def update_product_in_db(product_id, product_data):
+    # Reference to the product
+    product_ref = db.child(product_id)
+
+    #print contents of product_ref
+    print(product_ref.get().val().keys())
+    return True
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
