@@ -517,6 +517,7 @@ def rate_buyer(buyer_id):
 def edit_product(product_id):
     if not session.get('user_email', None):
         return redirect(url_for('login'))
+    
     product = get_product_by_id(product_id)
     if product:
         if request.method == "GET":
@@ -534,11 +535,14 @@ def update_product():
     product = get_product_by_id(product_id)
     if product:
         if request.method == "POST":
+            create_new_images = set(request.form.getlist('product_image'))
+            previous_images = set(request.form.getlist('previous_images'))            
+            updated_images = list(create_new_images.union(previous_images))
             product_data = {
                 "name": request.form['product_name'],
                 "description": request.form['product_description'],
                 "price": request.form['product_price'],
-                "images": request.form.getlist('product_image'),
+                "images": updated_images,
                 "category": request.form['product_category'],
                 "condition": request.form['product_condition'],
                 }
@@ -557,8 +561,9 @@ def update_product_in_db(product_id, product_data):
     # Reference to the product
     product_ref = db.child(product_id)
 
-    #print contents of product_ref
-    print(product_ref.get().val().keys())
+    # Update the product each field in the product_ref dictionary 
+    product_ref.update(product_data)
+
     return True
 
 if __name__ == '__main__':

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <style>
+        .search-container {
+            text-align: center; /* Center align the search container */
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+    
+        .search-bar {
+            width: 50%; /* Width of the search bar */
+            padding: 10px;
+            border: 2px solid #ddd; /* Border styling */
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    
+        .search-button {
+            padding: 10px 20px;
+            margin-left: 10px; /* Space between the search bar and button */
+            border: none;
+            border-radius: 5px;
+            background-color: #5cb85c; /* Button color */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    
+        .search-button:hover {
+            background-color: #4cae4c; /* Button hover color */
+        }
+    
+        .product {
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    
+        .product h2 {
+            color: #333;
+        }
+    
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    
+        .product img {
+            max-width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .title {
+            text-align: center;
+            font-size: 48px; /* Large font size for the title */
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        /* body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            } */
+    
+            form {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+            }
+    
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+    
+            
+    
+            label, input[type="text"], input[type="number"], input[type="password"], input[type="file"], textarea, select {
+                display: block; /* Makes each element take the full width */
+                width: 100%; /* Ensures uniform width */
+                margin-top: 5px; /* Top margin for spacing */
+            }
+    
+            input[type="text"],
+            input[type="number"],
+            input[type="password"],
+            input[type="file"],
+            textarea,
+            select {
+                padding: 4px;
+                margin-bottom: 10px; /* Space after each input field */
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                box-sizing: border-box;
+            }
+    
+            label {
+                margin-bottom: 2px; /* Space between label and input field */
+                color: #333;
+                font-size: 14px; /* Adjust as needed */
+            }
+    
+            input[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 14px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+    
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+    
+            /* Responsive adjustments for smaller screens */
+            @media (max-width: 600px) {
+                label, input[type="text"], input[type="number"], input[type="password"], input[type="file"], textarea, select {
+                    width: 100%;
+                }
+            }
+        </style>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block content %}
+    <div>
+        <h1>Edit the Product</h1>
+        <!-- The form now points to the endpoint for editing a product and includes the product's ID -->
+        <form action="{{ url_for('update_product') }}" method="post" enctype="multipart/form-data">
+            <label for="product_name">Product Name:</label><br>
+            <!-- <input type="text" id="product_name" name="product_name" value="{{ product_name}}" placeholder= product.name required><br> -->
+            <textarea id="product_name" name="product_name" required>{{ product.name }}</textarea><br>
+
+            <label for="product_description">Product Description:</label><br>
+            <textarea id="product_description" name="product_description" required>{{ product.description }}</textarea><br>
+
+            <label for="product_price">Product Price:</label><br>
+            <textarea id="product_price" name="product_price" required>{{ product.price }}</textarea><br>
+
+            <label for="product_image">Product Image:</label><br>
+            
+            <input type="file" id="product_image" name="product_image" accept="image/*" multiple><br>
+            <!-- add list  of images in hidden type -->
+            <input type="hidden" name="previous_images" value="{{ product.images|join(',') }}">
+            <!-- <input type="hidden" name="previous_image" value="{{ product.images[0] }}">  -->
+            <input type="hidden" name="product_id" value="{{ product_id }}">
+            <!--  -->
+            <!-- <textarea id="product_id" name="product_id" required>{{ product_id  }}</textarea><br> -->
+            <label for="product_category">Product Category:</label><br>
+            <select id="product_category" name="product_category" required>
+                <option value="electronics" {% if product.category == 'electronics' %}selected{% endif %}>Electronics</option>
+                <option value="books" {% if product.category == 'books' %}selected{% endif %}>Books</option>
+                <option value="clothing" {% if product.category == 'clothing' %}selected{% endif %}>Clothing</option>
+                <option value="home" {% if product.category == 'home' %}selected{% endif %}>Home</option>
+                <option value="other" {% if product.category == 'other' %}selected{% endif %}>Other</option>
+
+            </select><br>
+            
+            <label for="product_condition">Product Condition:</label><br>
+            <select id="product_condition" name="product_condition" required>
+                <option value="new" {% if product.condition == 'new' %}selected{% endif %}>New</option>
+                <option value="used" {% if product.condition == 'used' %}selected{% endif %}>Used</option>
+            </select><br>
+            <input type="submit" value="Update Product">
+        </form>
+    </div>
+    {% endblock %}
+    
+    
+</body>
+
+</html>
