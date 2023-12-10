@@ -535,17 +535,30 @@ def update_product():
     product = get_product_by_id(product_id)
     if product:
         if request.method == "POST":
-            create_new_images = set(request.form.getlist('product_image'))
-            previous_images = set(request.form.getlist('previous_images'))            
-            updated_images = list(create_new_images.union(previous_images))
+            previous_images = list(set(request.form.getlist('previous_images')))          
             product_data = {
                 "name": request.form['product_name'],
                 "description": request.form['product_description'],
                 "price": request.form['product_price'],
-                "images": updated_images,
+                "images": previous_images,
                 "category": request.form['product_category'],
                 "condition": request.form['product_condition'],
                 }
+            new_images = request.files.getlist('product_image')
+            for image in new_images:
+                if image:
+                    # Secure a filename and generate a unique one
+                    filename = secure_filename(image.filename)
+                    unique_filename = f"{uuid.uuid4()}_{filename}"
+                    # Upload the file to S3
+                    s3.upload_fileobj(
+                        image, 
+                        s3_bucket_name, 
+                        unique_filename
+                    )
+                    # Add the URL to the product data
+                    image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
+                    product_data["images"].append(image_url)
             if update_product_in_db(product_id, product_data):
                 flash('Product updated successfully', 'success')
                 return redirect(url_for('dashboard'))
