@@ -205,6 +205,37 @@
                 width: 100%;
             }
         }
+
+        .btn-view, .btn-edit {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-top: 10px;
+            margin-right: 20px;
+            
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-view {
+            background-color: #4CAF50;
+        }
+
+        .btn-edit {
+            background-color: #4CAF50;
+        }
+
+        .btn-view:hover {
+            background-color: #45a049;
+        }
+
+        .btn-edit:hover {
+            background-color: #45a049;
+        }
+
     </style>
 </head>
 <body>
@@ -251,12 +282,14 @@
             <div class="product-list">
                 {% for product in user_products %}
                     <div class="product">
-                        <a href="/product/{{ product.product_id }}/edit", product_id=product.id>
+                        <a href="/product/{{ product.product_id }}", product_id=product.id>
                         <img src="{{ product.images[0] }}" alt="{{ product.name }}">
                         <div class="product-info">
                             <h2>{{ product.name }}</h2>
                             <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
                             <p class="price">Cost: ${{ product.price }}</p>
+                            <a href="/product/{{ product.product_id }}" class="btn-view">View Product</a>
+                            <a href="/product/{{ product.product_id }}/edit" class="btn-edit">Edit Product</a>
                         </div>
                     </div>
                 {% endfor %}
