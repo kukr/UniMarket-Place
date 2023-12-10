@@ -303,7 +303,10 @@ def get_product(product_id):
         return redirect(url_for('login'))
 
     product = get_product_by_id(product_id)
-    print(product)
+    if product['seller_email'] == session['user_email']:
+        product['is_seller'] = True
+    else:
+        product['is_seller'] = False
     if product:
         return render_template('product_detail.html', product=product ,product_id=product_id)
     else:

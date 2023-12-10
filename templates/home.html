@@ -195,6 +195,9 @@
                     <div class="product-info">
                         <h2>{{ product.name }}</h2>
                         <p>{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                        <p>Category: {{ product.category }} </p>
+                        <p>Condition: {{ product.condition }} </p>
+                        <p>Posted: {{ product.posted_at }} </p>
                         <p class="price">Cost: ${{ product.price }}</p>
                     </div>
                     </a>
