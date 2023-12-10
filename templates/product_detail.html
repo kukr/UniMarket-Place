@@ -132,5 +132,10 @@
             </form>
         </div>
     {% endif %}
+    {% if product.is_seller == True %}
+        <div class="payment-negotiation">
+            <a href="{{ url_for('edit_product', product_id=product_id) }}" class="btn btn-success">Edit Product</a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
