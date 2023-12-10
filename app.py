@@ -363,7 +363,7 @@ def get_product(product_id):
     else:
         product['is_seller'] = False
     if product:
-        return render_template('product_detail.html', product=product ,product_id=product_id)
+        return render_template('product_detail.html', product=product ,product_id=product_id, user_email=session['user_email'])
     else:
         flash('Product not found.', 'danger')
         return redirect(url_for('dashboard'))
