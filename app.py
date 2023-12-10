@@ -535,7 +535,7 @@ def update_product():
     product = get_product_by_id(product_id)
     if product:
         if request.method == "POST":
-            previous_images = list(set(request.form.getlist('previous_images')))          
+            previous_images = list(request.form.getlist('previous_images')[0].split(',')) if request.form.getlist('previous_images') else []          
             product_data = {
                 "name": request.form['product_name'],
                 "description": request.form['product_description'],
@@ -569,6 +569,15 @@ def update_product():
         flash('Product not found.', 'danger')
         return redirect(url_for('dashboard'))
 
+
+@app.route('/delete_image', methods=['POST'])
+def delete_image():
+    data = request.get_json()
+    image_url = data.get('image_url')
+
+    print("YOOOO came here","$"*70)
+
+    return jsonify({'success': True})
 
 def update_product_in_db(product_id, product_data):
     # Reference to the product
