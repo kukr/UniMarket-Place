@@ -1,132 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Marketplace Offers</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketplace Offers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
           },
         },
-      };
-    </script>
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 60px;
-        }
+      },
+    };
+  </script>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 450px;
-        }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 450px;
+    }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-        .tab-content {
-            display: none;
-        }
+    .tab-content {
+      display: none;
+    }
 
-        .tab-content.active {
-            display: block;
-        }
+    .tab-content.active {
+      display: block;
+    }
 
-        .tabs {
-          display: flex;
-          justify-content: center; /* Center tabs horizontally */
-        }
-        .tabs button.active {
-            bg-gray-200;
-            color: #000;
-        }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      /* Center tabs horizontally */
+    }
 
-        /* Hover effect for non-active tabs */
-        .tabs button:not(.active):hover {
-            background-color: #bee3f8; /* Lighter blue to indicate hover state for non-active tabs */
-        }
+    .tabs button.active {
+      bg-gray-200;
+      color: #000;
+    }
 
-        .button {
-        transition: background-color 0.2s;
-      }
+    /* Hover effect for non-active tabs */
+    .tabs button:not(.active):hover {
+      background-color: #bee3f8;
+      /* Lighter blue to indicate hover state for non-active tabs */
+    }
 
-      .button:hover {
-        background-color: #e2e8f0;
-      }
+    .button {
+      transition: background-color 0.2s;
+    }
 
-      /* Card styles for vertical and horizontal centering */
-      .card {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-    </style>
-  </head>
-  {% extends "base.html" %} {% block content %}
-  <body class="font-sans bg-gray-100">
-    <div class="container mx-auto p-4">
-      <!-- Tabs for Seller and Customer Offers -->
-      <div class="tabs flex space-x-4 mb-4">
-        <button
-          class="tab-link px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-200"
-          onclick="openTab(event, 'sellerOffers')"
-        >
-          Seller Offers
-        </button>
-        <button
-          class="tab-link px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200"
-          onclick="openTab(event, 'customerOffers')"
-        >
-          Customer Offers
-        </button>
-      </div>
+    .button:hover {
+      background-color: #e2e8f0;
+    }
 
-      <!-- Seller Offers Tab Content -->
-<div id="sellerOffers" class="tab-content active card">
+    /* Card styles for vertical and horizontal centering */
+    .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+{% extends "base.html" %} {% block content %}
+
+<body class="font-sans bg-gray-100">
   <div class="container mx-auto p-4">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <!-- Tabs for Seller and Customer Offers -->
+    <div class="tabs flex space-x-4 mb-4">
+      <button class="tab-link px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-200"
+        onclick="openTab(event, 'sellerOffers')">
+        Seller Offers
+      </button>
+      <button class="tab-link px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200"
+        onclick="openTab(event, 'customerOffers')">
+        Customer Offers
+      </button>
+    </div>
 
-      <!-- Current Offers -->
-      <div class="px-4 py-5 sm:px-6 border-b">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">Current Offers</h3>
-      </div>
-      <div class="px-4 py-5 sm:p-6">
-        {% for offer in seller_offers %}
-          {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
+    <!-- Seller Offers Tab Content -->
+    <div id="sellerOffers" class="tab-content active card">
+      <div class="container mx-auto p-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+
+          <!-- Current Offers -->
+          <div class="px-4 py-5 sm:px-6 border-b">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Current Offers</h3>
+          </div>
+          <div class="px-4 py-5 sm:p-6">
+            {% for offer in seller_offers %}
+            {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
             <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
               <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
+                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
+                  alt="{{ offer.product.name }}" />
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ offer.name }}</div>
                   <div class="text-sm text-gray-500">By {{ offer.buyer_email }}</div>
@@ -135,32 +137,47 @@
               </div>
               <div class="flex space-x-2">
                 {% if offer.offer_status == 'BUYER_OFFER' %}
-                  <!-- Display Accept, Reject, Renegotiate buttons -->
-                  <button class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
-                  <button class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
-                  <button onclick="openRenegotiateModal('{{ offer.product_id }}')" class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600">Renegotiate</button>
+                <!-- Display Accept, Reject, Renegotiate buttons -->
+                <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
+                  <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
+                  <button
+                    class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
+                </form>
+                <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                  <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
+                  <button
+                    class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
+                </form>
+
+                <button onclick="openRenegotiateModal('{{ offer.product_id }}', '{{ offer.buyer_email }}')" class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600">Renegotiate</button>
 
 
                 {% elif offer.offer_status == 'SELLER_OFFER' %}
-                  <!-- Display waiting message -->
-                  <div class="text-sm font-medium text-gray-600">Waiting for response from Buyer</div>
+                <!-- Display waiting message -->
+                <div class="text-sm font-medium text-gray-600">Waiting for response from Buyer</div>
+                <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                  <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                  <button type="submit">Cancel Offer</button>
+                </form>
                 {% endif %}
               </div>
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
+            {% endif %}
+            {% endfor %}
+          </div>
 
-      <!-- Previous Offers -->
-      <div class="px-4 py-5 sm:px-6 border-b">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Offers</h3>
-      </div>
-      <div class="px-4 py-5 sm:p-6">
-        {% for offer in seller_offers %}
-          {% if offer.offer_status == 'OFFER_ACCEPTED' or offer.offer_status == 'OFFER_REJECTED' %}
+          <!-- Previous Offers -->
+          <div class="px-4 py-5 sm:px-6 border-b">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Offers</h3>
+          </div>
+          <div class="px-4 py-5 sm:p-6">
+            {% for offer in seller_offers %}
+            {% if offer.offer_status == 'OFFER_ACCEPTED' or offer.offer_status == 'OFFER_REJECTED' or offer.offer_status
+            == 'PAYMENT_DONE' %}
             <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
               <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
+                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
+                  alt="{{ offer.product.name }}" />
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
                   <div class="text-sm text-gray-500">By {{ offer.buyer_email }}</div>
@@ -169,216 +186,248 @@
               </div>
               <div class="text-sm font-medium">
                 {% if offer.offer_status == 'OFFER_ACCEPTED' %}
-                  <span class="text-green-600">Accepted</span>
+                <span class="text-green-600">Accepted</span>
+                <form action="{{ url_for('paid', product_id=offer.product_id) }}" method="post">
+                  <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
+                  <button type="submit">Mark Payment Done</button>
+                </form>
+                {% elif offer.offer_status == 'PAYMENT_DONE' %}
+                <span class="text-green-600">Sold</span>
                 {% else %}
-                  <span class="text-red-600">Rejected</span>
+                <span class="text-red-600">Rejected</span>
                 {% endif %}
               </div>
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<div id="renegotiateModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <form id="renegotiateForm" action="" method="post" class="space-y-4">
-      <!-- Hidden field for user_email (if needed) -->
-      <input type="hidden" name="user_email" value="{{ user_email }}">
-      <div>
-        <label for="newPrice" class="block text-sm font-medium text-gray-700">Enter New Price:</label>
-        <input type="text" id="newPrice" name="offer_price" class="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full" />
-      </div>
-      <div>
-        <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">Submit</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-      </div>
-
-      <!-- Customer Offers Tab Content -->
-<div id="customerOffers" class="tab-content">
-  <div class="container mx-auto p-4">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-      <!-- Current Customer Offers -->
-      <div class="px-4 py-5 sm:px-6 border-b">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">Current Customer Offers</h3>
-      </div>
-      <div class="px-4 py-5 sm:p-6">
-        {% for offer in customer_offers %}
-          {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
-            <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
-              <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
-                  <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
-                </div>
-              </div>
-              <div class="flex space-x-2">
-                <button class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
-                <button class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      <!-- Previous Customer Offers -->
-      <div class="px-4 py-5 sm:px-6 border-b">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Customer Offers</h3>
-      </div>
-      <div class="px-4 py-5 sm:p-6">
-        {% for offer in customer_offers %}
-          {% if offer.offer_status == 'OFFER_ACCEPTED' or offer.offer_status == 'OFFER_REJECTED' %}
-            <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
-              <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
-                  <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
-                </div>
-              </div>
-              <div class="text-sm font-medium text-green-600 mb-2">Status: {{ offer.offer_status }}</div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      
-      
-    </div>
-  </div>
-</div>
-
-
-
-      <!-- Confirmation Modal -->
-      <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-          <h2>Confirm Payment</h2>
-          <br />
-          <p>Do you want to proceed with the payment?</p>
-          <button
-            id="confirmBtn"
-            class="px-4 py-2 bg-green-500 mb-2 text-white rounded hover:bg-green-700"
-          >
-            Proceed with Payment
-          </button>
-          <button
-            onclick="closeModal()"
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
-          >
-            Cancel
-          </button>
+            {% endif %}
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
 
-    
-
-    <!-- Renegotiate Modal -->
-    <!-- ... -->
-
-    <script>
-      function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName('tab-content');
-    for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = 'none';
-    }
-    tablinks = document.getElementsByClassName('tab-link');
-    for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(' bg-gray-200', '');
-    }
-    document.getElementById(tabName).style.display = 'block';
-    evt.currentTarget.className += ' bg-gray-200';
-  }
-
-  // Function to open renegotiate modal
-  // function openRenegotiateModal(productId) {
-  //   // Update the action attribute of the form with the correct product ID
-  //   document.getElementById('product_id').value = productId;
-  
-  // // Show the modal
-  // var renegotiateModal = document.getElementById('renegotiateModal');
-  // renegotiateModal.style.display = 'block';
-  // }
-  function openRenegotiateModal(productId) {
-  // Update the form's action attribute to include the product_id
-  var form = document.getElementById('renegotiateForm');
-  form.action = '/offers/negotiate/' + productId;
-
-  // Show the renegotiate modal
-  var renegotiateModal = document.getElementById('renegotiateModal');
-  renegotiateModal.style.display = 'block';
-}
 
 
-  // Close button for renegotiate modal
-  var closeBtn = document.getElementsByClassName('close')[0];
-  closeBtn.onclick = function () {
-    var renegotiateModal = document.getElementById('renegotiateModal');
-    renegotiateModal.style.display = 'none';
-  };
+    <div id="renegotiateModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="renegotiateForm" action="" method="post" class="space-y-4">
+          <!-- Hidden field for user_email (if needed) -->
+          <input type="hidden" name="user_email" value="{{ user_email }}">
+          <input type="hidden" id="renegotiate_buyer_email" name="buyer_email" value="">
+          <div>
+            <label for="newPrice" class="block text-sm font-medium text-gray-700">Enter New Price:</label>
+            <input type="text" id="newPrice" name="offer_price"
+              class="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full" />
+          </div>
+          <div>
+            <button type="submit"
+              class="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-  // Handle clicking outside of renegotiate modal
-  window.onclick = function (event) {
-    var renegotiateModal = document.getElementById('renegotiateModal');
-    if (event.target === renegotiateModal) {
-      renegotiateModal.style.display = 'none';
-    }
-  };
 
-  // Renegotiate form submission
-  var renegotiateForm = document.getElementById('renegotiateForm');
-  renegotiateForm.onsubmit = function (event) {
-    event.preventDefault();
-    const newPrice = document.getElementById('newPrice').value;
-    console.log('New price submitted:', newPrice);
-    var renegotiateModal = document.getElementById('renegotiateModal');
-    renegotiateModal.style.display = 'none';
-  };
+  </div>
 
-      // Set default open tab
-      document.getElementById('defaultOpen').click();
+  <!-- Customer Offers Tab Content -->
+  <div id="customerOffers" class="tab-content">
+    <div class="container mx-auto p-4">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <!-- Current Customer Offers -->
+        <div class="px-4 py-5 sm:px-6 border-b">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Current Customer Offers</h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          {% for offer in customer_offers %}
+          {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
+          <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
+            <div class="flex items-center mb-4 md:mb-0">
+              <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
+                <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              {% if offer.offer_status == 'BUYER_OFFER' %}
+              <div class="text-sm font-medium text-gray-900">Waiting for response from Seller</div>
+              <!-- Cancel button should call the reject endpoint -->
+              <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                <button class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Cancel Offer</button>
+              </form>
+              {% else %}
+              <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
+                <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                <button
+                  class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
+              </form>
+              <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                <button
+                  class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
 
-      // Function to show the confirmation modal
-      function showConfirmationModal(offerId) {
-        var modal = document.getElementById('confirmationModal');
-        var confirmBtn = document.getElementById('confirmBtn');
+        <!-- Previous Customer Offers -->
+        <div class="px-4 py-5 sm:px-6 border-b">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Customer Offers</h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          {% for offer in customer_offers %}
+          {% if offer.offer_status == 'OFFER_ACCEPTED' or offer.offer_status == 'OFFER_REJECTED' or offer.offer_status
+          == 'PAYMENT_DONE' %}
+          <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
+            <div class="flex items-center mb-4 md:mb-0">
+              <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}" alt="{{ offer.product.name }}" />
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
+                <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
+              </div>
+            </div>
+            <div class="text-sm font-medium text-green-600 mb-2">
+              {% if offer.offer_status == 'PAYMENT_DONE' %}
+              <span class="text-green-600">Bought</span>
+              {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
+              <span class="text-green-600">Accepted</span>
+              {% else %}
+              <span class="text-red-600">Rejected</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // When the confirm button in the modal is clicked, redirect to the payment page
-        confirmBtn.onclick = function () {
-          window.location.href = `/payment?offerId=${offerId}`;
-        };
 
-        // Show the modal
-        modal.style.display = 'block';
+
+  <!-- Confirmation Modal -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h2>Confirm Payment</h2>
+      <br />
+      <p>Do you want to proceed with the payment?</p>
+      <button id="confirmPayment" class="px-4 py-2 bg-green-500 mb-2 text-white rounded hover:bg-green-700">
+        Proceed with Payment
+      </button>
+      <button onclick="closeModal()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">
+        Cancel
+      </button>
+    </div>
+  </div>
+  </div>
+
+
+
+
+  <!-- Renegotiate Modal -->
+  <!-- ... -->
+
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName('tab-content');
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = 'none';
       }
+      tablinks = document.getElementsByClassName('tab-link');
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(' bg-gray-200', '');
+      }
+      document.getElementById(tabName).style.display = 'block';
+      evt.currentTarget.className += ' bg-gray-200';
+    }
 
-      // Function to close the modal
-      function closeModal() {
-        var modal = document.getElementById('confirmationModal');
+    // Function to open renegotiate modal
+    // function openRenegotiateModal(productId) {
+    //   // Update the action attribute of the form with the correct product ID
+    //   document.getElementById('product_id').value = productId;
+
+    // // Show the modal
+    // var renegotiateModal = document.getElementById('renegotiateModal');
+    // renegotiateModal.style.display = 'block';
+    // }
+    function openRenegotiateModal(productId, buyerEmail) {
+      // Update the form's action attribute to include the product_id
+      var form = document.getElementById('renegotiateForm');
+      document.getElementById('renegotiate_buyer_email').value = buyerEmail;
+      form.action = '/offers/negotiate/' + productId;
+
+      // Show the renegotiate modal
+      var renegotiateModal = document.getElementById('renegotiateModal');
+      renegotiateModal.style.display = 'block';
+    }
+
+
+    // Close button for renegotiate modal
+    var closeBtn = document.getElementsByClassName('close')[0];
+    closeBtn.onclick = function () {
+      var renegotiateModal = document.getElementById('renegotiateModal');
+      renegotiateModal.style.display = 'none';
+    };
+
+    // Handle clicking outside of renegotiate modal
+    window.onclick = function (event) {
+      var renegotiateModal = document.getElementById('renegotiateModal');
+      if (event.target === renegotiateModal) {
+        renegotiateModal.style.display = 'none';
+      }
+    };
+
+    // Renegotiate form submission
+    var renegotiateForm = document.getElementById('renegotiateForm');
+    renegotiateForm.onsubmit = function (event) {
+      event.preventDefault();
+      const newPrice = document.getElementById('newPrice').value;
+      console.log('New price submitted:', newPrice);
+      var renegotiateModal = document.getElementById('renegotiateModal');
+      renegotiateModal.style.display = 'none';
+    };
+
+    // Set default open tab
+    var defaultOpenTab = document.getElementById('defaultOpen');
+    if (defaultOpenTab) {
+      defaultOpenTab.click();
+    }
+
+    // Function to show the confirmation modal
+    function proceedWithPayment(productId) {
+      var modal = document.getElementById('confirmationModal');
+      var confirmBtn = document.getElementById('confirmBtn');
+
+      // When the confirm button in the modal is clicked, redirect to the payment page
+      confirmBtn.onclick = function () {
+        window.location.href = `/payment/${productId}`;
+      };
+
+      // Show the modal
+      modal.style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      var modal = document.getElementById('confirmationModal');
+      modal.style.display = 'none';
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+      var modal = document.getElementById('confirmationModal');
+      if (event.target == modal) {
         modal.style.display = 'none';
       }
+    };
+  </script>
+</body>
+{% endblock %}
 
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = function (event) {
-        var modal = document.getElementById('confirmationModal');
-        if (event.target == modal) {
-          modal.style.display = 'none';
-        }
-      };
-    </script>
-  </body>
-  {% endblock %}
 </html>
