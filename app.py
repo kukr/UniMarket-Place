@@ -536,6 +536,7 @@ def paid(product_id):
         offer = db.child('offers').child(offer_key).get().val()
         if offer['seller_email'] ==  session['user_email']:
             db.child('offers').child(offer_key).update({'offer_status': PAID})
+            products_ref.child(product_id).update({'sold': True})
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
