@@ -488,10 +488,9 @@ def accept(product_id):
         return redirect(url_for('login'))
     try: 
         # Fetching all offers
-        all_offers = db.child('offers')
         buyer_email = request.form.get('buyer_email')
-        product = products_ref.child(product_id)
-        seller_email = product.get().val()[product_id]['seller_email']
+        product = db.child(product_id).get()
+        seller_email = product.val()['seller_email']
         offer_entry = {
             'product_id': product_id,
             'seller_email': seller_email,
