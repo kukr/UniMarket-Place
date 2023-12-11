@@ -135,7 +135,8 @@
       /* Slightly rounded corners for a modern look */
       background-color: white;
       /* Optional: Adds a white background */
-      width: 100%; /* Make it responsive */
+      width: 100%;
+      /* Make it responsive */
     }
 
     .current-offers {
@@ -143,19 +144,13 @@
       /* Light green background */
       border-left: 4px solid #4ade80;
       /* Green left border for emphasis */
-      padding: 10px;
+      /* padding: 5px; */
     }
 
     .previous-offers {
       background-color: #f3f4f6;
       /* Light grey background */
-      padding: 10px;
-    }
-
-    .current-offers>div:first-child,
-    .previous-offers>div:first-child {
-      margin-top: 20px;
-      /* Adjust this value to match the Seller Offers spacing */
+      /* padding: 5px; */
     }
   </style>
 </head>
@@ -185,13 +180,12 @@
             <h3 class="text-lg leading-6 font-medium text-gray-900">Current Offers</h3>
           </div>
           <div class="current-offers">
-            <div class="px-4 py-5 sm:p-6">
+            <div class="px-4 py-4 sm:p-6">
               {% for offer in seller_offers %}
-              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status ==
-              'OFFER_ACCEPTED' %}
+              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
               <div
-                class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
-                <div class="flex items-center mb-4 md:mb-0">
+                class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
+                <div class="flex items-center md:mb-0">
                   <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
                     alt="{{ offer.product.name }}" />
                   <div class="ml-4 flex-1">
@@ -224,10 +218,22 @@
 
                   {% elif offer.offer_status == 'SELLER_OFFER' %}
                   <!-- Display waiting message -->
-                  <div class="text-sm font-medium text-gray-600">Waiting for response from Buyer</div>
+                  <div class="flex align-items-center font-medium text-gray-600">Waiting for response from Buyer</div>
                   <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
                     <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
-                    <button type="submit">Cancel Offer</button>
+                    <button
+                      class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 shadow hover:shadow-lg transition duration-300 ease-in-out"
+                      type="submit">Cancel Offer</button>
+                  </form>
+
+                  {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
+                  <span class="flex align-items-center text-green-600">Accepted</span>
+                  <form action="{{ url_for('paid', product_id=offer.product_id) }}" method="post">
+                    <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
+                    <button type="submit"
+                      class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 shadow hover:shadow-lg transition duration-300 ease-in-out">
+                      Mark Payment Done
+                    </button>
                   </form>
                   {% endif %}
                 </div>
@@ -242,13 +248,14 @@
             <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Offers</h3>
           </div>
           <div class="previous-offers">
-            <div class="px-4 py-5 sm:p-6">
+            <div class="px-4 py-4 sm:p-6">
               {% for offer in seller_offers %}
               {% if offer.offer_status == 'OFFER_REJECTED' or
               offer.offer_status
               == 'PAYMENT_DONE' %}
-              <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
-                <div class="flex items-center mb-4 md:mb-0">
+              <div
+                class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4">
+                <div class="flex align-items-center md:mb-0">
                   <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
                     alt="{{ offer.product.name }}" />
                   <div class="ml-4 flex-1">
@@ -258,17 +265,8 @@
                   </div>
                 </div>
                 <div class="text-sm font-medium">
-                  {% if offer.offer_status == 'OFFER_ACCEPTED' %}
-                  <span class="text-green-600">Accepted</span>
-                  <form action="{{ url_for('paid', product_id=offer.product_id) }}" method="post">
-                    <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
-                    <button type="submit"
-                      class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 shadow hover:shadow-lg transition duration-300 ease-in-out">
-                      Mark Payment Done
-                    </button>
-                  </form>
-                  {% elif offer.offer_status == 'PAYMENT_DONE' %}
-                  <span class="text-green-600">Sold</span>
+                  {% if offer.offer_status == 'PAYMENT_DONE' %}
+                  <span class="flex align-items-center text-green-600">Sold</span>
                   {% else %}
                   <span class="text-red-600">Rejected</span>
                   {% endif %}
@@ -305,95 +303,97 @@
     </div>
 
 
-  
+
 
     <!-- Customer Offers Tab Content -->
     <div id="customerOffers" class="tab-content card" style="display: none;">
-    <div class="container mx-auto p-4">
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <!-- Current Customer Offers -->
-        <div class="px-4 py-5 sm:px-6 border-b">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Current Customer Offers</h3>
-        </div>
-        <div class="current-offers">
-          <div class="px-4 py-5 sm:p-6">
-            {% for offer in customer_offers %}
-            {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status ==
-            'OFFER_ACCEPTED' %}
-            <div
-              class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
-              <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
-                  alt="{{ offer.product.name }}" />
-                <div class="ml-4 flex-1">
-                  <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
-                  <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
-                </div>
-              </div>
-              <div class="flex justify-end space-x-2">
-                {% if offer.offer_status == 'BUYER_OFFER' %}
-                <div class="mt-2 font-medium text-gray-900">Waiting for response from Seller</div>
-                <!-- Cancel button should call the reject endpoint -->
-                <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
-                  <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
-                  <button
-                    class="ml-2 px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Cancel
-                    Offer</button>
-                </form>
-                {% else %}
-                <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
-                  <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
-                  <button
-                    class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
-                </form>
-                <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
-                  <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
-                  <button
-                    class="ml-2 px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
-                </form>
-                {% endif %}
-              </div>
-            </div>
-            {% endif %}
-            {% endfor %}
+      <div class="container mx-auto p-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <!-- Current Customer Offers -->
+          <div class="px-4 py-4 sm:px-6 border-b">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Current Customer Offers</h3>
           </div>
-        </div>
-
-        <!-- Previous Customer Offers -->
-        <div class="px-4 py-5 sm:px-6 border-b">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Customer Offers</h3>
-        </div>
-        <div class="previous-offers">
-          <div class="px-4 py-5 sm:p-6">
-            {% for offer in customer_offers %}
-            {% if offer.offer_status == 'OFFER_REJECTED' or offer.offer_status
-            == 'PAYMENT_DONE' %}
-            <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg mb-4">
-              <div class="flex items-center mb-4 md:mb-0">
-                <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
-                  alt="{{ offer.product.name }}" />
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
-                  <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
+          <div class="current-offers">
+            <div class="px-4 py-4 sm:p-6">
+              {% for offer in customer_offers %}
+              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status ==
+              'OFFER_ACCEPTED' %}
+              <div
+                class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
+                <div class="flex align-items-center md:mb-0">
+                  <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
+                    alt="{{ offer.product.name }}" />
+                  <div class="ml-4 flex-1">
+                    <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
+                    <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
+                  </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                  {% if offer.offer_status == 'BUYER_OFFER' %}
+                  <div class="flex align-items-center mt-2 font-medium text-gray-900">Waiting for response from Seller
+                  </div>
+                  <!-- Cancel button should call the reject endpoint -->
+                  <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                    <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                    <button
+                      class="ml-2 px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Cancel
+                      Offer</button>
+                  </form>
+                  {% else %}
+                  <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
+                    <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                    <button
+                      class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
+                  </form>
+                  <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
+                    <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                    <button
+                      class="ml-2 px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">Reject</button>
+                  </form>
+                  {% endif %}
                 </div>
               </div>
-              <div class="text-sm font-medium text-green-600 mb-2">
-                {% if offer.offer_status == 'PAYMENT_DONE' %}
-                <span class="text-green-600">Bought</span>
-                {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
-                <span class="text-green-600">Accepted</span>
-                {% else %}
-                <span class="text-red-600">Rejected</span>
-                {% endif %}
-              </div>
+              {% endif %}
+              {% endfor %}
             </div>
-            {% endif %}
-            {% endfor %}
+          </div>
+
+          <!-- Previous Customer Offers -->
+          <div class="px-4 py-5 sm:px-6 border-b">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Previous Customer Offers</h3>
+          </div>
+          <div class="previous-offers">
+            <div class="px-4 py-4 sm:p-6">
+              {% for offer in customer_offers %}
+              {% if offer.offer_status == 'OFFER_REJECTED' or offer.offer_status
+              == 'PAYMENT_DONE' %}
+              <div
+                class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4">
+                <div class="flex align-items-center md:mb-0">
+                  <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
+                    alt="{{ offer.product.name }}" />
+                  <div class="ml-4 flex-1">
+                    <div class="text-sm font-medium text-gray-900">{{ offer.product.name }}</div>
+                    <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-green-600 mb-2">
+                  {% if offer.offer_status == 'PAYMENT_DONE' %}
+                  <span class="flex align-items-center text-green-600">Bought</span>
+                  {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
+                  <span class="flex align-items-center text-green-600">Accepted</span>
+                  {% else %}
+                  <span class="flex align-items-center text-red-600">Rejected</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   </div>
 
 
