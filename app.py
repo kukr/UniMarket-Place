@@ -484,12 +484,21 @@ def accept(product_id):
         # Fetching all offers
         all_offers = db.child('offers')
         buyer_email = request.form.get('buyer_email')
+        product = products_ref.child(product_id).get()
+        seller_email = product.val()['seller_email']
+        offer_entry = {
+            'product_id': product_id,
+            'seller_email': seller_email,
+            'buyer_email': buyer_email,
+            'timestamp': datetime.now().isoformat(),
+            'offer_price': request.form.get('offer_price'),
+            'offer_status': OFFER_ACC,
+        }
+        db.child('offers').child(offer_key).set(offer_data)
         # Updating offer_status to "rejected" for offers with the given product_id
         for offer_key, offer_data in all_offers.get().val().items():
             if offer_data['product_id'] == product_id:
-                if offer_data['buyer_email'] == buyer_email:
-                    db.child('offers').child(offer_key).update({'offer_status': OFFER_ACC})
-                else:
+                if offer_data['buyer_email'] != buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
         return redirect(url_for('offers'))
     except Exception as e:
