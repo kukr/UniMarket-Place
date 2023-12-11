@@ -465,8 +465,14 @@ def negotiate(product_id):
         }
         offer = db.child('offers').child(offer_key).get().val()
         if offer:
-            if offer['offer_status'] == offer_status or offer['offer_status'] == OFFER_ACC or offer['offer_status'] == OFFER_REJ:
+            if offer['offer_status'] == offer_status:
                 flash('Not your turn to negotiate.', 'danger')
+                return redirect(url_for('offers'))
+            elif offer['offer_status'] == OFFER_ACC:
+                flash('Offer already accepted.', 'danger')
+                return redirect(url_for('offers'))
+            elif offer['offer_status'] == OFFER_REJ:
+                flash('Offer already rejected.', 'danger')
                 return redirect(url_for('offers'))
         db.child('offers').child(offer_key).set(offer_data)
         return redirect(url_for('offers'))
@@ -499,7 +505,8 @@ def accept(product_id):
         for offer_key, offer_data in all_offers.get().val().items():
             if offer_data['product_id'] == product_id:
                 if offer_data['buyer_email'] != buyer_email:
-                    db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
+                    db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ, 
+                                                                'timestamp': datetime.now().isoformat()})
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
@@ -516,7 +523,8 @@ def reject(product_id):
         buyer_email = request.form.get('buyer_email')
         offer_key = f"{product_id}_{encode_email(buyer_email)}"
         # Updating offer_status to "rejected" for offers with the given product_id
-        db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
+        db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ, 
+                                                    'timestamp': datetime.now().isoformat()})
         return redirect(url_for('offers'))
     except Exception as e:
         print(e)
@@ -535,7 +543,8 @@ def paid(product_id):
         # Updating offer_status to "rejected" for offers with the given product_id
         offer = db.child('offers').child(offer_key).get().val()
         if offer['seller_email'] ==  session['user_email']:
-            db.child('offers').child(offer_key).update({'offer_status': PAID})
+            db.child('offers').child(offer_key).update({'offer_status': PAID,
+                                                        'timestamp': datetime.now().isoformat()})
             products_ref.child(product_id).update({'sold': True})
         return redirect(url_for('offers'))
     except Exception as e:
