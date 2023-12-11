@@ -484,8 +484,8 @@ def accept(product_id):
         # Fetching all offers
         all_offers = db.child('offers')
         buyer_email = request.form.get('buyer_email')
-        product = products_ref.child(product_id).get()
-        seller_email = product.val()['seller_email']
+        product = products_ref.child(product_id)
+        seller_email = product.get().val()[product_id]['seller_email']
         offer_entry = {
             'product_id': product_id,
             'seller_email': seller_email,
@@ -494,15 +494,17 @@ def accept(product_id):
             'offer_price': request.form.get('offer_price'),
             'offer_status': OFFER_ACC,
         }
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
         db.child('offers').child(offer_key).set(offer_entry)
         # Updating offer_status to "rejected" for offers with the given product_id
-        for offer_key, offer_data in all_offers.get().val().items():
+        for offer_key, offer_data in db.child('offers').get().val().items():
+            print(offer_data.keys())
             if offer_data['product_id'] == product_id:
                 if offer_data['buyer_email'] != buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ})
         return redirect(url_for('offers'))
     except Exception as e:
-        print(e)
+        print("error opn 515", e)
         flash('Product not found.', 'danger')
         return redirect(url_for('offers'))
 
