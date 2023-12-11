@@ -684,9 +684,6 @@ def update_product():
 def delete_image():
     data = request.get_json()
     image_url = data.get('image_url')
-
-    print("YOOOO came here","$"*70)
-
     return jsonify({'success': True})
 
 def update_product_in_db(product_id, product_data):
