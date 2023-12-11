@@ -508,7 +508,10 @@ def accept(product_id):
                 if offer_data['buyer_email'] != buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ, 
                                                                 'timestamp': datetime.now().isoformat()})
-        return redirect(url_for('offers'))
+        if seller_email == session['user_email']:
+            return redirect(url_for('offers'))
+        else:
+            return redirect(url_for('payment', seller_email=seller_email))
     except Exception as e:
         print("error opn 515", e)
         flash('Product not found.', 'danger')
@@ -588,8 +591,8 @@ def get_customer_offers(user_email):
     return sorted_offers
 
 
-@app.route('/payment')
-def payment():
+@app.route('/payment/<seller_email>')
+def payment(seller_email):
     offer_id = request.args.get('offerId')
     # Fetch payment details for the offer using the offer_id
     # For example, get the seller's payment QR code information from the database
