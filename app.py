@@ -494,7 +494,7 @@ def accept(product_id):
             'offer_price': request.form.get('offer_price'),
             'offer_status': OFFER_ACC,
         }
-        db.child('offers').child(offer_key).set(offer_data)
+        db.child('offers').child(offer_key).set(offer_entry)
         # Updating offer_status to "rejected" for offers with the given product_id
         for offer_key, offer_data in all_offers.get().val().items():
             if offer_data['product_id'] == product_id:
