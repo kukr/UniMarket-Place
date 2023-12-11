@@ -358,6 +358,7 @@
     // }
     function openRenegotiateModal(productId, buyerEmail) {
       // Update the form's action attribute to include the product_id
+      console.log("Opening renegotiate modal for product ID:", productId);
       var form = document.getElementById('renegotiateForm');
       document.getElementById('renegotiate_buyer_email').value = buyerEmail;
       form.action = '/offers/negotiate/' + productId;
@@ -386,7 +387,7 @@
     // Renegotiate form submission
     var renegotiateForm = document.getElementById('renegotiateForm');
     renegotiateForm.onsubmit = function (event) {
-      event.preventDefault();
+      // event.preventDefault();
       const newPrice = document.getElementById('newPrice').value;
       console.log('New price submitted:', newPrice);
       var renegotiateModal = document.getElementById('renegotiateModal');
