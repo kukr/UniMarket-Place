@@ -182,7 +182,7 @@
           <div class="current-offers">
             <div class="px-4 py-4 sm:p-6">
               {% for offer in seller_offers %}
-              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' %}
+              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status == 'OFFER_ACCEPTED' or offer.offer_status == 'SELLER_ACCEPTED' %}
               <div
                 class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
                 <div class="flex items-center md:mb-0">
@@ -203,6 +203,8 @@
                       class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 shadow hover:shadow-lg transition duration-300 ease-in-out">
                       Accept
                     </button>
+                    <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
+                    <input type="hidden" name="status" value="SELLER_ACCEPTED">
                   </form>
                   <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
                     <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
@@ -216,7 +218,7 @@
                     class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600">Renegotiate</button>
 
 
-                  {% elif offer.offer_status == 'SELLER_OFFER' %}
+                  {% elif offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'SELLER_ACCEPTED' %}
                   <!-- Display waiting message -->
                   <div class="flex align-items-center font-medium text-gray-600">Waiting for response from Buyer</div>
                   <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
@@ -316,8 +318,7 @@
           <div class="current-offers">
             <div class="px-4 py-4 sm:p-6">
               {% for offer in customer_offers %}
-              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status ==
-              'OFFER_ACCEPTED' %}
+              {% if offer.offer_status == 'SELLER_OFFER' or offer.offer_status == 'BUYER_OFFER' or offer.offer_status == 'SELLER_ACCEPTED' %}
               <div
                 class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4 shadow-md">
                 <div class="flex align-items-center md:mb-0">
@@ -342,6 +343,8 @@
                   {% else %}
                   <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
                     <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
+                    <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
+                    <input type="hidden" name="status" value="OFFER_ACCEPTED">
                     <button
                       class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
                   </form>
@@ -366,7 +369,7 @@
             <div class="px-4 py-4 sm:p-6">
               {% for offer in customer_offers %}
               {% if offer.offer_status == 'OFFER_REJECTED' or offer.offer_status
-              == 'PAYMENT_DONE' %}
+              == 'PAYMENT_DONE' or offer.offer_status == 'OFFER_ACCEPTED' %}
               <div
                 class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4">
                 <div class="flex align-items-center md:mb-0">

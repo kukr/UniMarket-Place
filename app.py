@@ -491,20 +491,21 @@ def accept(product_id):
         buyer_email = request.form.get('buyer_email')
         product = db.child(product_id).get()
         seller_email = product.val()['seller_email']
+        status = request.form.get('status')
         offer_entry = {
             'product_id': product_id,
             'seller_email': seller_email,
             'buyer_email': buyer_email,
             'timestamp': datetime.now().isoformat(),
             'offer_price': request.form.get('offer_price'),
-            'offer_status': OFFER_ACC,
+            'offer_status': status,
         }
         offer_key = f"{product_id}_{encode_email(buyer_email)}"
         db.child('offers').child(offer_key).set(offer_entry)
         # Updating offer_status to "rejected" for offers with the given product_id
         for offer_key, offer_data in db.child('offers').get().val().items():
-            print(offer_data.keys())
             if offer_data['product_id'] == product_id:
+                print(offer_data)
                 if offer_data['buyer_email'] != buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ, 
                                                                 'timestamp': datetime.now().isoformat()})
@@ -586,7 +587,6 @@ def get_customer_offers(user_email):
         if offer_data['buyer_email'] == user_email:
             offer_data['product'] = get_product_by_id(offer_data['product_id'])
             offers.append(offer_data)
-        print(offer_data)
     sorted_offers = sorted(offers, key=lambda x: x['timestamp'], reverse=True)
     return sorted_offers
 
