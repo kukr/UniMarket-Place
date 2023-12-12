@@ -187,7 +187,7 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updatePasswordModal">
             Change Password
         </button>
-        {% if qr_code != "" %}
+        {% if qr_code_url != "" %}
             <img class="qr_img" src="{{ qr_code_url }}" alt="QR Code">
             <form action="/update_qr" method="post" enctype="multipart/form-data">
                 <input class="qr_button"  type="file" name="qr_code" accept="image/*">
@@ -195,7 +195,7 @@
             </form>
         <!-- else show no qr -->
         {% else %}
-            <p>No QR Code</p>
+            <p style="text-align: center">No QR Code, Please add it!</p>
             <form action="/update_qr" method="post" enctype="multipart/form-data">
                 <input class="qr_button" type="file" name="qr_code" accept="image/*">
                 <button type="submit" class="update-button">Update QR Code</button>
