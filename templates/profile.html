@@ -47,24 +47,30 @@
         .update-button,
         .btn-primary {
             display: block;
-            text-align: center;
-            width: 100%;
-            padding: 10px 20px;
+            margin-left: auto; /* Centers the button */
+            margin-right: auto; /* Centers the button */
+            width: 25%; /* Adjustable based on the desired width */
+            padding: 2px 5px;
             font-size: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 10px; /* Increase space below the button */
             background-color: #3498db;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Adds depth to the buttons */
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); /* Improves text readability */
         }
-    
+
         .custom-file-upload:hover,
         .update-button:hover,
         .btn-primary:hover {
-            background-color: #2980b9;
+            background-color: #2980b9; /* Darker shade on hover for interaction */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover for a 'lifting' effect */
         }
+
         input::file-selector-button {
             display: none;
             }
