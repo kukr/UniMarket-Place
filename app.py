@@ -7,6 +7,7 @@ from fire_base_config import *
 from aws_config import *
 from datetime import datetime
 import base64
+from sys import argv
 import os
 
 import uuid
@@ -771,4 +772,13 @@ def update_product_in_db(product_id, product_data):
     return True
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # get port from args
+    if len(argv) > 1:
+        port = argv[1]
+    else:
+        port = 5000
+    if port != 500:
+        debug = False
+    else:
+        debug = True
+    app.run(host='0.0.0.0', port=port, debug=debug)
