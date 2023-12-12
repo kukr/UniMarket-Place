@@ -7,32 +7,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Signup</title>
     <style>
-        .title {
-            text-align: center;
-            font-size: 48px;
-            color: #333;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            }
-        .title h1 {
-            font-size: 28px;
-            }
+    .message {
+        /* margin: 0 auto; */
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+
+        ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        background-color: #f8d7da; /* Light red background */
+        color: #721c24; /* Dark red text */
+        border: 1px solid #f5c6cb; /* Slightly lighter red border */
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .title {
+        text-align: center;
+        font-size: 48px;
+        color: #333;
+        margin-top: 30px;
+        margin-bottom: 20px;
+        }
+    .title p {
+        font-size: 28px;
+        }
         </style>
 </head>
 <body>
     <div class="title">
         <i class="fa fa-university"></i> UniMarketPlace
-        <h1 class="page_title">👋 Hello! Please signup here</h1>
+        <p>👋 Hello! Please signup here</p>
     </div>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
     <form method="POST">
         {{ form.hidden_tag() }}
         <label for="username">Username:</label>
@@ -42,6 +55,15 @@
         {{ form.password }}
         <br>
         {{ form.submit }}
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
     </form>
 </body>
 </html>

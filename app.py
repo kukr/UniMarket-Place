@@ -73,26 +73,32 @@ def signup():
         username = StringField('Username', validators=[DataRequired()])
         password = PasswordField('Password', validators=[DataRequired()])
         submit = SubmitField('Signup')
-
+    try:
     # Get the form data
-    form = SignupForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        # get .edu from email
-        email = username.split('@')[1]
-        if not email.endswith('.edu'):
-            flash('Please use an .edu email address.', 'danger')
-            return redirect(url_for('signup'))
-        # Create the user
-        try:
-            user = auth.create_user_with_email_and_password(username, password)
-            flash('You have been signed up.', 'success')
-            return redirect(url_for('login'))
-        except:
-            flash('Invalid username or password.', 'danger')
-            return redirect(url_for('signup'))
-    return render_template('signup.html', form=form)
+        form = SignupForm()
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            # get .edu from email
+            if '@' not in username:
+                flash('Please enter a valid email address.', 'danger')
+                return redirect(url_for('signup'))
+            email = username.split('@')[1]
+            if not email.endswith('.edu'):
+                flash('Please use an .edu email address.', 'danger')
+                return redirect(url_for('signup'))
+            # Create the user
+            try:
+                user = auth.create_user_with_email_and_password(username, password)
+                flash('You have been signed up.', 'success')
+                return redirect(url_for('login'))
+            except:
+                flash('Invalid username or password.', 'danger')
+                return redirect(url_for('signup'))
+        return render_template('signup.html', form=form)
+    except Exception as e:
+        flash('Invalid username or password.', 'danger')
+        return redirect(url_for('signup'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -6,6 +6,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
+    .message {
+        /* margin: 0 auto; */
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+
+        ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        background-color: #f8d7da; /* Light red background */
+        color: #721c24; /* Dark red text */
+        border: 1px solid #f5c6cb; /* Slightly lighter red border */
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
     .title {
         text-align: center;
         font-size: 48px;
@@ -13,7 +35,7 @@
         margin-top: 30px;
         margin-bottom: 20px;
         }
-    .title h1 {
+    .title p {
         font-size: 28px;
         }
     </style>
@@ -22,17 +44,9 @@
 <body>
     <div class="title">
         <i class="fa fa-university"></i> UniMarketPlace
-        <h1 class="page_title">👋 Hello! Please login here</h1>
+        <p>👋 Hello! Please login here<p>
     </div>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
+
     <form method="POST">
         {{ form.hidden_tag() }}
         <label for="username">Username:</label>
@@ -43,6 +57,20 @@
         <br>
         {{ form.submit }}
         <input type="button" value="Sign Up" onclick="location.href='/signup'">
+            <!-- Flash Messages Section -->
+    <div class="message">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
     </form>
+
+
 </body>
 </html>
