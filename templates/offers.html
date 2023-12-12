@@ -31,7 +31,6 @@
       background-color: rgba(0, 0, 0, 0.4);
       padding-top: 60px;
     }
-
     /* Modal Improvements */
     .modal-content {
       background-color: #4ade80;
@@ -282,7 +281,7 @@
               {% if offer.offer_status == 'OFFER_REJECTED' or
               offer.offer_status
               == 'PAYMENT_DONE' %}
-              <div
+              <div 
                 class="flex flex-col md:flex-row justify-content-between align-items-center bg-gray-50 p-4 rounded-lg mb-4">
                 <div class="flex align-items-center md:mb-0">
                   <img class="h-12 w-12 rounded-full" src="{{ offer.product.images[0] }}"
@@ -293,14 +292,14 @@
                     <div class="text-sm text-gray-500">Requested Price: {{ offer.offer_price }}</div>
                   </div>
                 </div>
-                <div class="text-sm font-medium">
+                <div class="sold" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f8f8f8; max-width: 300px; margin: right 0; text-align: center;">
                   {% if offer.offer_status == 'PAYMENT_DONE' %}
-                  <span class="flex align-items-center text-green-600">Sold</span>
-                  <p>Meeting Location and Time: {{ offer.meeting_location }}</p>
+                  <span class="flex justify-center items-center text-green-600" style="display: block; margin-bottom: 8px;">Sold</span>
+                  <p style="word-wrap: normal; white-space: normal; margin-bottom: 0; color: #000;">Meeting Location and Time: {{ offer.meeting_location }}</p>
                   {% else %}
-                  <span class="text-red-600">Rejected</span>
+                  <span class="text-red-600" style="display: block;">Rejected</span>
                   {% endif %}
-                </div>
+              </div>
               </div>
               {% endif %}
               {% endfor %}
@@ -408,10 +407,10 @@
                     <div class="text-sm text-gray-500">Offered Price: {{ offer.offer_price }}</div>
                   </div>
                 </div>
-                <div class="text-sm font-medium text-green-600 mb-2">
+                <div class="text-sm font-medium text-green-600 mb-2" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f8f8f8; max-width: 300px; margin: right 0; text-align: center;">
                   {% if offer.offer_status == 'PAYMENT_DONE' %}
-                  <span class="flex align-items-center text-green-600">Bought</span>
-                  <p style="color: #000;">Meeting Location and Time: {{ offer.meeting_location }}</p>
+                  <span class="flex align-items-center text-green-600" style="display: block; margin-bottom: 8px;">Bought</span>
+                  <p style="word-wrap: normal; white-space: normal; margin-bottom: 0; color: #000;">Meeting Location and Time: {{ offer.meeting_location }}</p>
                   {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
                   <span class="flex align-items-center text-green-600">Accepted</span>
                   {% else %}
