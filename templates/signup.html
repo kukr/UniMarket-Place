@@ -4,10 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Signup</title>
+    <style>
+        .title {
+            text-align: center;
+            font-size: 48px;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            }
+        .title h1 {
+            font-size: 28px;
+            }
+        </style>
 </head>
 <body>
-    <h1 class="page_title">👋 Hello! Please signup here</h1>
+    <div class="title">
+        <i class="fa fa-university"></i> UniMarketPlace
+        <h1 class="page_title">👋 Hello! Please signup here</h1>
+    </div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     <ul>
