@@ -1,1 +1,1 @@
-sudo nohup python3 app.py > log.txt 2>&1 &
+sudo nohup python3 app.py 80 > log.txt 2>&1 &
