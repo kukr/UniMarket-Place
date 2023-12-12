@@ -51,6 +51,16 @@
       /* Centers content horizontally */
     }
 
+    textarea {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+}
     .close {
       color: #aaa;
       float: right;
@@ -201,25 +211,10 @@
                   <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
                     <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
                     <!-- Accept button to show modal -->
-                    <button type="button" onclick="showLocationModal('{{ offer.product_id }}')"
+                    <button type="submit" 
                             class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 shadow hover:shadow-lg transition duration-300 ease-in-out">
                         Accept
                     </button>
-
-                    <!-- Modal for meeting location -->
-                    <div id="locationModal-{{ offer.product_id }}" class="modal">
-                        <div class="modal-content">
-                            <span class="close" onclick="closeModal('{{ offer.product_id }}')">&times;</span>
-                            <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
-                                <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
-                                <label for="meetingLocation">Please Enter the Meeting Location and Time:</label>
-                                <textarea id="meetingLocation" name="meeting_location" required></textarea>
-                                <input type="submit" value="Submit">
-                                <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
-                                <input type="hidden" name="status" value="SELLER_ACCEPTED">
-                            </form>
-                        </div>
-                    </div>
 
                     <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
                     <input type="hidden" name="status" value="SELLER_ACCEPTED">
@@ -250,10 +245,24 @@
                   <span class="flex align-items-center text-green-600">Accepted</span>
                   <form action="{{ url_for('paid', product_id=offer.product_id) }}" method="post">
                     <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
-                    <button type="submit"
+                    <button type="button" onclick="showLocationModal('{{ offer.product_id }}')"
                       class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 shadow hover:shadow-lg transition duration-300 ease-in-out">
                       Mark Payment Done
                     </button>
+                                        <!-- Modal for meeting location -->
+                                        <div id="locationModal-{{ offer.product_id }}" class="modal">
+                                          <div class="modal-content">
+                                              <span class="close" onclick="closeModal('{{ offer.product_id }}')">&times;</span>
+                                              <form action="{{ url_for('accept', product_id=offer.product_id) }}" method="post">
+                                                  <input type="hidden" name="buyer_email" value="{{ offer.buyer_email }}">
+                                                  <label for="meetingLocation">Please Enter the Meeting Location and Time:</label>
+                                                  <textarea id="meetingLocation" name="meeting_location" required></textarea>
+                                                  <input type="submit" value="Submit">
+                                                  <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
+                                                  <input type="hidden" name="status" value="SELLER_ACCEPTED">
+                                              </form>
+                                          </div>
+                                      </div>
                   </form>
                   {% endif %}
                 </div>
@@ -364,7 +373,7 @@
                     <input type="hidden" name="buyer_email" value="{{ session['user_email'] }}">
                     <input type="hidden" name="offer_price" value="{{ offer.offer_price }}">
                     <input type="hidden" name="status" value="OFFER_ACCEPTED">
-                    <button
+                    <button type="submit"
                       class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">Accept</button>
                   </form>
                   <form action="{{ url_for('reject', product_id=offer.product_id) }}" method="post">
@@ -402,7 +411,7 @@
                 <div class="text-sm font-medium text-green-600 mb-2">
                   {% if offer.offer_status == 'PAYMENT_DONE' %}
                   <span class="flex align-items-center text-green-600">Bought</span>
-                  <p>Meeting Location and Time: {{ offer.meeting_location }}</p>
+                  <p style="color: #000;">Meeting Location and Time: {{ offer.meeting_location }}</p>
                   {% elif offer.offer_status == 'OFFER_ACCEPTED' %}
                   <span class="flex align-items-center text-green-600">Accepted</span>
                   {% else %}

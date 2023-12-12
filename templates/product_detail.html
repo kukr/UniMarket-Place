@@ -124,7 +124,7 @@
     </div>
     {% if product.is_seller == False %}
         <div class="payment-negotiation">
-            <form action="{{ url_for('accept', product_id=product_id) }}" method="post" class="d-inline">
+            <form action="{{ url_for('negotiate', product_id=product_id) }}" method="post" class="d-inline">
                 <input type="hidden" name="buyer_email" value="{{ user_email }}">
                 <input type="hidden" name="offer_price" value="{{ product.price }}">
                 <input type="hidden" name="status" value="OFFER_ACCEPTED">

@@ -521,12 +521,16 @@ def accept(product_id):
         # Fetching all offers
         buyer_email = request.form.get('buyer_email')
         product = db.child(product_id).get()
+        print("product",product.val())
         seller_email = product.val()['seller_email']
         status = request.form.get('status')
-        meeting_location = request.form.get('meeting_location')
+        # meeting_location = request.form.get('meeting_location')
         offer_key = f"{product_id}_{encode_email(buyer_email)}"
-        if meeting_location=='' or meeting_location==None:
-            meeting_location=db.child('offers').child(offer_key).get().val()['meeting_location']
+        # if meeting_location=='' or meeting_location==None:
+        #     try:
+        #         meeting_location=db.child('offers').child(offer_key).get().val()['meeting_location']
+        #     except:
+        #         meeting_location="Meeting location not specified, please contact the seller: "+seller_email+" for more details."
             # print("meeting location",meeting_location)
         offer_entry = {
             'product_id': product_id,
@@ -535,7 +539,7 @@ def accept(product_id):
             'timestamp': datetime.now().isoformat(),
             'offer_price': request.form.get('offer_price'),
             'offer_status': status,
-            'meeting_location': meeting_location,
+            # 'meeting_location': meeting_location,
         }
         
         db.child('offers').child(offer_key).set(offer_entry)
@@ -585,8 +589,10 @@ def paid(product_id):
         offer_key = f"{product_id}_{encode_email(buyer_email)}"
         # Updating offer_status to "rejected" for offers with the given product_id
         offer = db.child('offers').child(offer_key).get().val()
+        meeting_location = request.form.get('meeting_location')
         if offer['seller_email'] ==  session['user_email']:
             db.child('offers').child(offer_key).update({'offer_status': PAID,
+                                                        'meeting_location': meeting_location,
                                                         'timestamp': datetime.now().isoformat()})
             products_ref.child(product_id).update({'sold': True})
         return redirect(url_for('offers'))
