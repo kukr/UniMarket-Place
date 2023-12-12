@@ -42,6 +42,8 @@ def get_all_products():
     for key, val in all_products.items():
         if val.get('seller_email', '') == session['user_email']:
             del copy_of_all_products[key]
+        if val.get('sold', False):
+            del copy_of_all_products[key]
     return copy_of_all_products
 
 def get_all_products_dashboard(email):
@@ -233,7 +235,10 @@ def profile():
         name = db.child("users").child(encode_email(user_email)).child("name").get().val()
         if not name:
             name = ""
-        return render_template('profile.html', user_email=user_email, profile_pic=profile_pic,  name=name, phone=phone)
+        qr_code_url = db.child("users").child(encode_email(user_email)).child("qr_code").get().val()
+        if not qr_code_url:
+            qr_code_url = ""
+        return render_template('profile.html', user_email=user_email, profile_pic=profile_pic,  name=name, phone=phone, qr_code_url=qr_code_url)
     else:
         # If no user is logged in, redirect to login
         flash('Please log in to view this page.', 'warning')
@@ -285,6 +290,32 @@ def update_profile():
         # Return the updated profile picture URL
         return redirect(url_for('profile'))    
     return redirect(url_for('profile'))
+
+@app.route('/update_qr', methods=['POST'])
+def update_qr():
+        if not session.get('user_email', None):
+            return redirect(url_for('login'))
+        user_email = session.get('user_email', None)
+    
+        image = request.files['qr_code']
+        if image:
+            # Secure a filename and generate a unique one
+            filename = secure_filename(image.filename)
+            unique_filename = f"{uuid.uuid4()}_{filename}"
+
+            # Upload the file to S3
+            s3.upload_fileobj(
+                image, 
+                s3_bucket_name, 
+                unique_filename
+                # ExtraArgs={'ACL': 'public-read'}  # Optional: Set ACL to public-read if you want the file to be publicly accessible
+            )
+
+            # Add the URL to the product data
+            image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{unique_filename}"
+            db.child("users").child(encode_email(user_email)).child("qr_code").set(image_url)
+            return redirect(url_for('profile'))
+        return redirect(url_for('profile'))
 
 @app.route('/update_password', methods=['POST'])
 def update_password():
@@ -597,7 +628,9 @@ def payment(seller_email):
     # Fetch payment details for the offer using the offer_id
     # For example, get the seller's payment QR code information from the database
     payment_details = get_payment_details(offer_id)
-    return render_template('payment.html', payment_details=payment_details)
+    # get qr code url
+    qr_code_url = db.child("users").child(encode_email(seller_email)).child("qr_code").get().val()
+    return render_template('payment.html', payment_details=payment_details, qr_code_url=qr_code_url)
 
 def get_payment_details(offer_id):
     # Implement this function to retrieve payment details from the database
@@ -719,4 +752,4 @@ def update_product_in_db(product_id, product_data):
     return True
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)

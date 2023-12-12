@@ -40,6 +40,7 @@
         .update-button,
         .btn-primary {
             display: block;
+            text-align: center;
             width: 100%;
             padding: 10px 20px;
             font-size: 16px;
@@ -57,12 +58,40 @@
         .btn-primary:hover {
             background-color: #2980b9;
         }
-    
+        input::file-selector-button {
+            display: none;
+            }
+
+        .qr_button {
+            display: block;
+            width: 100%;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
         .update-button {
             background-color: #27ae60;
             font-size: 12px;
         }
-    
+        .qr_button:hover {
+            background-color: #2980b9;
+        }
+        .qr_img {
+            width: 150px; /* Adjust the width as needed */
+            height: 150px; /* Adjust the height as needed */
+            /* border-radius: 50%; */
+            object-fit: cover;
+            margin-bottom: 10px;
+            margin: auto;
+        }
+
         h1 {
             text-align: center;
             color: #333;
@@ -138,6 +167,20 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updatePasswordModal">
             Change Password
         </button>
+        {% if qr_code != "" %}
+            <img class="qr_img" src="{{ qr_code_url }}" alt="QR Code">
+            <form action="/update_qr" method="post" enctype="multipart/form-data">
+                <input class="qr_button"  type="file" name="qr_code" accept="image/*">
+                <button type="submit" class="update-button">Update QR Code</button>
+            </form>
+        <!-- else show no qr -->
+        {% else %}
+            <p>No QR Code</p>
+            <form action="/update_qr" method="post" enctype="multipart/form-data">
+                <input class="qr_button" type="file" name="qr_code" accept="image/*">
+                <button type="submit" class="update-button">Update QR Code</button>
+            </form>
+        {% endif %}
     </div>
     <div class="modal fade" id="updatePasswordModal" tabindex="-1" role="dialog" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
