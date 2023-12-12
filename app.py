@@ -42,7 +42,7 @@ def get_all_products():
     for key, val in all_products.items():
         if val.get('seller_email', '') == session['user_email']:
             del copy_of_all_products[key]
-        if val.get('sold', False):
+        elif val.get('sold', False):
             del copy_of_all_products[key]
     return copy_of_all_products
 
@@ -523,6 +523,11 @@ def accept(product_id):
         product = db.child(product_id).get()
         seller_email = product.val()['seller_email']
         status = request.form.get('status')
+        meeting_location = request.form.get('meeting_location')
+        offer_key = f"{product_id}_{encode_email(buyer_email)}"
+        if meeting_location=='' or meeting_location==None:
+            meeting_location=db.child('offers').child(offer_key).get().val()['meeting_location']
+            # print("meeting location",meeting_location)
         offer_entry = {
             'product_id': product_id,
             'seller_email': seller_email,
@@ -530,13 +535,15 @@ def accept(product_id):
             'timestamp': datetime.now().isoformat(),
             'offer_price': request.form.get('offer_price'),
             'offer_status': status,
+            'meeting_location': meeting_location,
         }
-        offer_key = f"{product_id}_{encode_email(buyer_email)}"
+        
         db.child('offers').child(offer_key).set(offer_entry)
+        print("offer entry",offer_entry)
         # Updating offer_status to "rejected" for offers with the given product_id
         for offer_key, offer_data in db.child('offers').get().val().items():
             if offer_data['product_id'] == product_id:
-                print(offer_data)
+                print("offer data",offer_data)
                 if offer_data['buyer_email'] != buyer_email:
                     db.child('offers').child(offer_key).update({'offer_status': OFFER_REJ, 
                                                                 'timestamp': datetime.now().isoformat()})
