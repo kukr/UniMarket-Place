@@ -8,7 +8,10 @@ from aws_config import *
 from datetime import datetime
 import base64
 from sys import argv
+from dotenv import load_dotenv
 import os
+
+load_dotenv() 
 
 import uuid
 # Initialize Flask app
